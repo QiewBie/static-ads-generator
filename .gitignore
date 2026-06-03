@@ -12,5 +12,5 @@ __pycache__/
 # Tooling caches
 .firecrawl/
 
-# Regenerable reference crops (rebuilt from assets/ on each run)
-ad-workspace/*/references/
+# Generated outputs — regenerable from specs; not source
+ad-workspace/
