@@ -68,7 +68,13 @@ When the ad needs information (pain points, bullets, a testimonial), use the bod
 ## Formats & archetypes
 
 Formats: `scene` · `comparison` · `blocks` · `ugc` · `how_it_works`.
-Design archetypes (the graphic layer): `editorial` · `spec_card` · `annotated` · `color_block` · `badge` · `ugc_minimal` · `testimonial` · `social_proof`. If you omit `archetype`, the engine applies a sensible per-format default (the validator tells you which) — but set it explicitly for intended variety. Run `python3 gen.py --policy` for descriptions and audience fit.
+Design archetypes (the graphic layer): `editorial` · `spec_card` · `annotated` · `color_block` · `badge` · `ugc_minimal` · `testimonial` · `social_proof` · `poster` · `screenshot` · `before_after`. If you omit `archetype`, the engine applies a sensible per-format default (the validator tells you which) — but set it explicitly for intended variety. Run `python3 gen.py --policy` for descriptions and audience fit.
+
+**Bold/DR devices — use them; the brand's top performers are loud:**
+- `poster` — an oversized number/word/statement IS the composition (200,000. / 10:1.).
+- `screenshot` — a native IG/FB comment, review card, or text exchange; cold-traffic authenticity.
+- `before_after` — two honest states; the change is the whole point.
+- `stamp` (a field, not an archetype) — a bold corner stamp like `"RESTOCK"` / `"NEW"` / `"BESTSELLER"`. Opt-in, and use ONLY for a literally true state — never manufacture scarcity (the validator warns).
 
 ## Photographic variety (you don't need to set this, but you can)
 

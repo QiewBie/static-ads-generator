@@ -310,11 +310,17 @@ DESIGN_ARCHETYPES = {
     "ugc_minimal":  "Near-zero design: phone-shot frame, optional plain caption. No panels, no chips, no art direction. Cold-traffic authenticity.",
     "testimonial":  "Customer voice is the hero — a real quote set large, simple attribution. The product supports the voice.",
     "social_proof": "Proof is the hero — rating, count, or outcome stat dominates as a designed element, not a cluttered wall.",
+    "poster":       "Poster / typographic: a single oversized numeral, word, or short statement IS the composition, filling most of the frame. Maximum type, minimal everything else. Loud, declarative, impossible to scroll past. The product sits smaller but still present.",
+    "screenshot":   "Native social proof: rendered to look like a real captured screenshot — an Instagram/Facebook comment thread, a review card with stars, or a text-message exchange. The words feel screenshotted, not designed. Cold-traffic authenticity, but legible and on-brand (no fake usernames of real people).",
+    "before_after": "Before / after transformation: one subject in two honest states — the old way vs. the Alcami way, or day 1 vs. day 30. A clear divide or diptych; the change is the entire point. Never exaggerate the result.",
 }
 
-# Visual manifestations the model rotates across for the two proof archetypes.
-TESTIMONIAL_TREATMENTS  = ["quote_card", "review_screenshot", "portrait_quote", "star_hero"]
-SOCIAL_PROOF_TREATMENTS = ["star_hero", "big_number", "stat_callouts", "review_wall", "badge_cluster"]
+# Visual manifestations the model rotates across for the designed proof/idea archetypes.
+TESTIMONIAL_TREATMENTS   = ["quote_card", "review_screenshot", "portrait_quote", "star_hero"]
+SOCIAL_PROOF_TREATMENTS  = ["star_hero", "big_number", "stat_callouts", "review_wall", "badge_cluster"]
+POSTER_TREATMENTS        = ["single_numeral", "single_word", "stacked_statement"]
+SCREENSHOT_TREATMENTS    = ["ig_comment", "review_card", "text_message", "tweet"]
+BEFORE_AFTER_TREATMENTS  = ["split_vertical", "diptych", "labeled_panels"]
 
 
 # ── Audience policy (THE single source of truth) ────────────────────────────────
@@ -326,7 +332,8 @@ AUDIENCE_POLICY = {
     "acquisition": {
         "lead_formats": ["ugc", "scene", "comparison", "blocks", "how_it_works"],
         "archetypes":   ["ugc_minimal", "editorial", "spec_card", "annotated",
-                         "color_block", "badge", "testimonial", "social_proof"],
+                         "color_block", "badge", "testimonial", "social_proof",
+                         "poster", "screenshot", "before_after"],
         "discouraged":  {},   # cold traffic can use anything
     },
     "retarget": {
@@ -335,12 +342,14 @@ AUDIENCE_POLICY = {
         # Core angles: "we made tea now!" · "loved the blend? try this" · two-product display
         # · insider/early-access · "one of the first mushroom teas."
         "lead_formats": ["scene", "blocks", "how_it_works"],
-        "archetypes":   ["editorial", "color_block", "spec_card", "annotated", "badge"],
+        "archetypes":   ["editorial", "color_block", "spec_card", "annotated", "badge", "poster"],
         "discouraged": {
             "ugc":          "warm audience already trusts you — relatability proof is wasted",
             "comparison":   "launch register is news, not an argument — don't pit our brand-new product in a vs. layout for people who already buy from us",
             "testimonial":  "they don't need peer validation; share the news instead",
             "social_proof": "they're already sold on quality; lead with 'we made this — try it', not proof",
+            "screenshot":   "native social-proof is for cold skeptics — warm buyers don't need authenticity signals",
+            "before_after": "before/after is a proof/argument device — the launch register is news, not a case to argue",
         },
     },
 }
@@ -441,6 +450,18 @@ def _get_cta_line(ad: dict) -> str:
             f'obviously tappable element on the canvas, and must never blend into the scene.')
 
 
+def _stamp_line(ad: dict) -> str:
+    """Optional bold overlay stamp (e.g. RESTOCK, NEW, BESTSELLER) — opt-in via the
+    `stamp` field. Use ONLY for a literally true state; never manufacture scarcity.
+    Rendered as a rotated rubber-stamp/sticker badge, never over product or headline."""
+    stamp = ad.get("stamp")
+    if not stamp:
+        return ""
+    return (f'\nSTAMP: render the word "{stamp}" as a bold, slightly rotated rubber-stamp or '
+            f'sticker badge in a high-energy accent color, tucked in a corner so it never covers '
+            f'the product or the headline — an attention spike, not clutter.')
+
+
 def _pick(options: list, ad: dict, salt: str) -> str:
     """Deterministically pick one option, seeded by the ad filename + salt.
     Same file → same pick (stable re-runs); different files → different looks."""
@@ -482,16 +503,19 @@ def _fill(text: str, ad: dict) -> str:
 
 
 def _archetype_line(ad: dict) -> str:
-    """Expand the chosen design archetype into restrained design language."""
+    """Expand the chosen design archetype into specific design language."""
     arche = ad.get("archetype")
     desc = DESIGN_ARCHETYPES.get(arche) if arche else None
     if not desc:
         return ""
-    extra = ""
-    if arche == "testimonial":
-        extra = f" Pick one treatment and commit to it: {', '.join(TESTIMONIAL_TREATMENTS)}."
-    elif arche == "social_proof":
-        extra = f" Pick one treatment and commit to it: {', '.join(SOCIAL_PROOF_TREATMENTS)}."
+    treatments = {
+        "testimonial":   TESTIMONIAL_TREATMENTS,
+        "social_proof":  SOCIAL_PROOF_TREATMENTS,
+        "poster":        POSTER_TREATMENTS,
+        "screenshot":    SCREENSHOT_TREATMENTS,
+        "before_after":  BEFORE_AFTER_TREATMENTS,
+    }.get(arche)
+    extra = f" Pick one treatment and commit to it: {', '.join(treatments)}." if treatments else ""
     return f"\nDESIGN ARCHETYPE — {arche}: {desc}{extra}\n"
 
 
@@ -729,7 +753,7 @@ LIGHTING: {lighting}.
 DESIGN DEPTH:
 · The product has a soft diffused shadow beneath it on its surface — physical weight, not a paste-in.
 · Text and product occupy SEPARATE zones: the text lives in the clean negative space of the scene, never on top of or cropping the product. For legibility, prefer placing text where the background is already calm; if contrast is short, use a soft gradient scrim that fades to transparent, sized to the text only — never a hard opaque box, never a full-width band.
-· Subtle vignette at canvas corners if the scene needs it — draws focus toward the product and text.{text_line}{category_line}{night_cup_line}{price_line}{cta_line}
+· Subtle vignette at canvas corners if the scene needs it — draws focus toward the product and text.{text_line}{category_line}{night_cup_line}{_stamp_line(ad)}{price_line}{cta_line}
 
 {HARD_RULES}
 
@@ -810,7 +834,7 @@ DESIGN DEPTH:
 · Each column header sits inside its own defined panel or zone with a contrasting background.
 
 TONE: Confident and factual. Not aggressive. The comparison speaks for itself.
-{category_line}{night_cup_line}{price_line}{cta_line}
+{category_line}{night_cup_line}{_stamp_line(ad)}{price_line}{cta_line}
 
 {HARD_RULES}
 
@@ -897,7 +921,7 @@ COLOR WORLD: {color}. The palette lives in the light, surfaces and graphic zones
 {arche_line}{style_line}
 {content_section}
 
-{_BLOCKS_DESIGN_TAIL}{category_line}{night_cup_line}{price_line}{cta_line}
+{_BLOCKS_DESIGN_TAIL}{category_line}{night_cup_line}{_stamp_line(ad)}{price_line}{cta_line}
 
 {HARD_RULES}
 
@@ -968,7 +992,7 @@ ENVIRONMENT RULES (non-negotiable):
 · Maximum 2–3 objects on any visible surface. The Alcami product, the person, and one supporting element (a mug, a book) are the entire story.
 · "Real" means authentic body language and natural light — NOT clutter. The environment feels like a real home that happens to be intentionally tidy.
 · The person's face must be visible and in context — no backs to camera, no silhouettes that hide identity.
-· Aspirational-real: the kind of apartment you'd want to live in, not a documentary of a messy one.{text_line}{night_cup_line}{price_line}{cta_line}
+· Aspirational-real: the kind of apartment you'd want to live in, not a documentary of a messy one.{text_line}{night_cup_line}{_stamp_line(ad)}{price_line}{cta_line}
 
 {HARD_RULES}
 
@@ -1047,7 +1071,7 @@ TYPOGRAPHY HIERARCHY:
 · Headline : step label : detail body = 5 : 2.5 : 1 (size ratio, clearly visible).
 · Step numbers are bolder and larger than the step labels they precede.
 · Clean bold sans-serif for step labels. Regular weight sans-serif for detail. High contrast throughout.
-{category_line}{night_cup_line}{price_line}{cta_line}
+{category_line}{night_cup_line}{_stamp_line(ad)}{price_line}{cta_line}
 
 {HARD_RULES}
 
@@ -1070,6 +1094,7 @@ def _rendered_texts(ad: dict) -> list:
     if ad.get("headline"):       out.append(("headline", ad["headline"]))
     if ad.get("subhead"):        out.append(("subhead", ad["subhead"]))
     if ad.get("text_in_image"):  out.append(("text_in_image", ad["text_in_image"]))
+    if ad.get("stamp"):          out.append(("stamp", ad["stamp"]))
     for i, st in enumerate(ad.get("stats", [])):
         out.append((f"stats[{i}]", str(st)))
     for side in ("left", "right"):
@@ -1143,6 +1168,11 @@ def validate_spec(ad: dict) -> tuple:
             warnings.append(f"{fid}: hook is very short — may be a fragment: '{hook}'")
         if hook[-1] not in ".?!":
             warnings.append(f"{fid}: hook doesn't end with . ? ! — may be a fragment: '{hook}'")
+
+    # ── stamp: opt-in urgency/news device — must reflect a TRUE state ──
+    if ad.get("stamp"):
+        warnings.append(f"{fid}: stamp '{ad['stamp']}' — use only for a literally true state "
+                        f"(real restock / new launch / bestseller); never manufacture scarcity.")
 
     # ── style field sanity ──
     style = ad.get("style")
