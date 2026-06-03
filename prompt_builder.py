@@ -234,18 +234,18 @@ BLEND_SKUS = {
 
 _HARD_RULES_TMPL = """
 HARD RULES — apply without exception:
-· DESIGN, don't transcribe: render ONLY the words in the explicit text/copy fields. Never draw field labels, quote marks, art-direction notes, bullet/leading marks (· • - *), or this brief's line breaks. Grouping, line breaks, alignment and spacing are YOUR design decisions; items are visual objects (chips, cards, columns), never a document list.
-· NO forbidden text: no dates, ship dates, deadlines, URLs, domain names, or review-count numbers (star rating like 4.9★ is fine).
-· PUNCTUATION: plain hyphens (-) only, never en/em dashes (– —); no decorative bullet marks in any rendered text.
-· FULL BLEED: fill the entire 1:1 square to all four edges — sharp square corners, NO rounded corners, NO border, frame, matte, or device/phone mockup around the image.
+· DESIGN, don't transcribe: render ONLY the words in the explicit text/copy fields — never field labels, quote marks, art-direction notes, leading marks (· • - *), or this brief's line breaks. Grouping, alignment and spacing are YOUR decisions; items are visual objects (chips, cards, columns), never a document list.
+· NO forbidden text: no dates, deadlines, URLs, domains, or review-count numbers (a star rating like 4.9★ is fine).
+· PUNCTUATION: plain hyphens (-) only, never en/em dashes (– —); no decorative bullet marks.
+· FULL BLEED: fill the 1:1 square to all four edges, sharp square corners — no rounded corners, border, frame, matte, or device/phone mockup.
 · {product_rule}
-· TEXT LEGIBILITY: place text in the clean, uncluttered negative space of the frame first. Only when contrast is genuinely insufficient, add a SOFT gradient scrim that fades to transparent, sized just to the text — never a hard-edged opaque rectangle, never a full-width band, never over the product.
-· CTA: a self-contained tappable button (sized to its text, margin from the edges), the single highest-contrast element on the canvas — never a full-width footer stripe.
+· TEXT LEGIBILITY: place text in the frame's clean negative space; only if contrast is genuinely short, add a SOFT gradient scrim sized just to the text and fading to transparent — never a hard opaque box, a full-width band, or anything over the product.
+· CTA: a self-contained tappable button sized to its text with margin from the edges — the single highest-contrast element on the canvas, never a full-width footer stripe.
 · NO floating body parts: any human element is visibly attached to a person in full context."""
 
-_PRODUCT_RULE_HERO = ("PRODUCT: the canister/pouch is ≥35% of image height, the resolution of the "
-    "concept (not decoration), with a soft diffused shadow beneath it — never a flat cutout. Text "
-    "never overlaps, covers, or crops the product — they occupy separate zones.")
+_PRODUCT_RULE_HERO = ("PRODUCT: the canister/pouch is ≥35% of image height and the resolution of the "
+    "concept (not decoration) — grounded by a soft diffused shadow, never a flat cutout. Text and "
+    "product occupy separate zones; text never overlaps, covers, or crops the product.")
 
 _PRODUCT_RULE_SUPPORT = ("PRODUCT: the canister/pouch is reproduced ACCURATELY and is clearly present, "
     "but it need NOT dominate — the oversized type/number, the screenshot, or the person's moment is "
@@ -470,10 +470,8 @@ def _get_cta_line(ad: dict) -> str:
         return "\nNo visible CTA in the image."
     return (f'\nCALL TO ACTION — render the button text exactly "{cta_text}" '
             f'(those words only, never a "CTA" label): {style_desc}. '
-            f'Fill it for MAXIMUM contrast against whatever sits directly behind it — a near-black '
-            f'fill with cream text on light or warm backgrounds; a cream or brand-gold #867353 fill '
-            f'with dark text on dark backgrounds. It must be the single highest-contrast, most '
-            f'obviously tappable element on the canvas, and must never blend into the scene.')
+            f'Fill it for maximum contrast against whatever sits behind it (near-black on light/warm, '
+            f'cream or brand-gold #867353 on dark).')
 
 
 def _stamp_line(ad: dict) -> str:
@@ -705,8 +703,8 @@ def _text_block(ad: dict, sku: dict) -> str:
         )
     # Size/role guidance kept SEPARATE from the quoted words so it can't be transcribed.
     lines.append(
-        "  SIZE HIERARCHY (apply to the layout; do NOT render this note): the headline is the dominant, "
-        "largest element and reads first; the subhead is about half its size and supports it; any chips are smallest."
+        "  SIZE HIERARCHY (apply to layout; do NOT render this note): headline is the dominant, largest "
+        "element and reads first; subhead about half its size; any chips smallest."
     )
     return "\n".join(lines)
 
@@ -775,11 +773,7 @@ CAMERA: {camera}.
 
 LIGHTING: {lighting}.
 
-{_archetype_line(ad)}
-DESIGN DEPTH:
-· The product has a soft diffused shadow beneath it on its surface — physical weight, not a paste-in.
-· Text and product occupy SEPARATE zones: the text lives in the clean negative space of the scene, never on top of or cropping the product. For legibility, prefer placing text where the background is already calm; if contrast is short, use a soft gradient scrim that fades to transparent, sized to the text only — never a hard opaque box, never a full-width band.
-· Subtle vignette at canvas corners if the scene needs it — draws focus toward the product and text.{text_line}{category_line}{night_cup_line}{_stamp_line(ad)}{price_line}{cta_line}
+{_archetype_line(ad)}{text_line}{category_line}{night_cup_line}{_stamp_line(ad)}{price_line}{cta_line}
 
 {_hard_rules(ad)}
 
@@ -840,10 +834,9 @@ RIGHT — "{right.get('label', 'Alcami')}":
 The product ({sku['name']}) appears prominently on the RIGHT side — it is the answer, not decoration.
 
 TYPOGRAPHY HIERARCHY (non-negotiable):
-· Hook/headline above the comparison: LARGEST text on canvas. Dominant. Stops the scroll. Bold, condensed, high-contrast.
-· Column headers ("{left.get('label', 'Before')}" / "{right.get('label', 'Alcami')}"): bold condensed — ~60% of headline size. Each in its own panel or clearly defined zone.
-· Bullet text: clean regular weight — ~30% of headline size. Readable at mobile. Never the same visual weight as headers.
-· Size ratios must be clearly visible: headline dominates → headers support → bullets are information.
+· Headline above the comparison: LARGEST text on canvas, bold condensed, high-contrast — stops the scroll.
+· Column headers ("{left.get('label', 'Before')}" / "{right.get('label', 'Alcami')}"): bold condensed, ~60% of headline size, each in its own panel or defined zone.
+· Bullet text: clean regular weight, ~30% of headline size, readable at mobile — never the same weight as headers.
 
 ROW PARALLELISM — CRITICAL:
 · Every left bullet and its corresponding right bullet address THE EXACT SAME dimension or variable (e.g., row 1 = both about dose, row 2 = both about caffeine, row 3 = both about format/packaging).
@@ -852,7 +845,6 @@ ROW PARALLELISM — CRITICAL:
 · Row count left = row count right, always.
 
 DESIGN DEPTH:
-· The Alcami canister on the right has a soft drop shadow beneath it — it has physical weight and presence.
 · Right column: subtle SKU color ({sku['color_hex']} at 10-15% opacity behind bullet rows) — a visual bias toward our side. Not aggressive, just clearly the winner.
 · Thin horizontal divider lines between row pairs — creates structure and readability.
 · Left column text: muted, slightly desaturated — the lesser option, not attacked.
@@ -871,17 +863,10 @@ This should NOT look like a generic wellness comparison. It should feel like a b
 
 # Shared design scaffolding for ALL blocks ads — ONE source so the two input
 # shapes (clean `items` / legacy `blocks`) can never drift apart.
-_BLOCKS_DESIGN_TAIL = """LAYOUT — you are a designer, not a typewriter; interpret the copy into a deliberate composition:
-· Each text group is its OWN visual object (chip, card, column, or panel) — NEVER a vertical bulleted list, NEVER leading dots/dashes.
-· Hierarchy must be obvious: the headline dominates, supporting items step down, proof is smallest.
-
-DESIGN DEPTH:
-· The product sits in a REAL, dimensional context — a textured surface, a soft shadow beneath it, a subtle glow behind it. NEVER a flat cutout on a plain colored fill.
-· Subtle vignette at the corners draws focus to the center.
+_BLOCKS_DESIGN_TAIL = """LAYOUT — you are a designer, not a typewriter: each text group is its OWN visual object (chip, card, column, or panel), never a vertical bulleted list. The product sits in a real, dimensional context — a textured surface with a subtle glow behind it.
 
 TYPOGRAPHY HIERARCHY:
-· Headline: dominant, the largest element on the canvas.
-· Item names ~55-65%; notes and proof smallest (~25-30%). Every level visibly distinct.
+· Headline dominates (largest on canvas); item names ~55-65%; notes and proof smallest (~25-30%). Every level visibly distinct.
 · Editorial serif (Didot/Bodoni) for the headline; clean sans-serif for item/proof text."""
 
 
@@ -1079,25 +1064,17 @@ INFOGRAPHIC LAYOUT — {len(steps)} steps in a clear vertical or horizontal flow
 {steps_desc}
 
 DESIGN DEPTH:
-· The product canister/pouch at the conclusion of the flow has a soft drop shadow — it sits on the ground plane.
 · Each step is inside a defined container: a rounded-rectangle card, a numbered circle + attached content panel, or a clearly bordered row. Steps are design objects, not floating text lines.
-· Color zone separation: the step flow area has a slightly different background tone from the product area — creates visual separation between mechanism and answer.
-· Subtle vignette at canvas corners — draws the eye to the central flow.
+· Color zone separation: the step flow area has a slightly different background tone from the product area — visual separation between mechanism and answer.
 
 DESIGN DIRECTION — critical for legibility:
-· The hook/headline above the steps: LARGEST text on canvas. Dominant. Stops the scroll.
-· Each step has a large bold step number (①②③) as the visual anchor — the biggest element within each step card.
-· Step labels: bold, large, high-contrast — readable at mobile size without zooming. ~60% of headline size.
+· Headline above the steps is the LARGEST text on canvas. Type ratio headline : step label : detail = 5 : 2.5 : 1, clearly visible.
+· Each step has a large bold step number (①②③) as its visual anchor — bolder and larger than the step label it precedes.
+· Step labels: bold, high-contrast, readable at mobile size. Detail text smaller but fully legible, never the same weight as labels.
 · Between steps: a simple directional arrow or connecting line — no decorative complexity.
-· Each step's detail text is smaller but fully legible — ~25% of headline size. Never same weight as labels.
 · The product appears at the END of the flow as the answer — the physical conclusion of the steps.
-· Background: clean, minimal — the infographic content is the visual. No competing imagery.
-· ALL TEXT must be crisp, correctly spelled, perfectly aligned. If text is not legible, the ad fails.
-
-TYPOGRAPHY HIERARCHY:
-· Headline : step label : detail body = 5 : 2.5 : 1 (size ratio, clearly visible).
-· Step numbers are bolder and larger than the step labels they precede.
-· Clean bold sans-serif for step labels. Regular weight sans-serif for detail. High contrast throughout.
+· Background clean and minimal — the infographic is the visual, no competing imagery. All text crisp, correctly spelled, aligned; if text isn't legible, the ad fails.
+· Clean bold sans-serif for step labels, regular weight for detail, high contrast throughout.
 {category_line}{night_cup_line}{_stamp_line(ad)}{price_line}{cta_line}
 
 {_hard_rules(ad)}
