@@ -198,6 +198,8 @@ The tea canisters are a completely different visual object from the latte pouche
 - Use "thousands" or the star rating for social proof — no specific customer number. 200,000+ belongs to the blend exclusively.
 - Tea may borrow brand trust: "from the makers of Alcami." Cite NO specific customer number — 200,000+ is the blend's figure; tea uses "thousands" or 4.9★ only.
 
+> **Illustrative vs. verified — read before using any quote or number.** The customer quotes, HRV percentages, and day-counts throughout this brief are **ILLUSTRATIVE** — they convey the register and the *kind* of outcome customers report. Do NOT use a specific number, day-count, or named quote verbatim in ad copy unless the client has verified it. For ads, describe the felt outcome ("fewer 2am wake-ups," "wake actually rested") and cite only 4.9★ or "thousands." (The ad-copy skill enforces this.)
+
 ---
 
 ## Competitive Positioning for Tea
@@ -268,7 +270,7 @@ Same core audience as the blend, plus three specific sub-segments:
 
 **5. Trifecta as the experiment** — "All three. Three weeks. Let the body decide." The Trifecta entry narrative works for curious buyers and gifters.
 
-**6. Measurable sleep proof** — "+18% HRV." "2am wake-ups stopped in 10 days." This level of specificity is rare in functional tea advertising.
+**6. Measurable sleep proof** — lead with the felt result ("fewer 2am wake-ups," "wake actually rested"). Specific figures like "+18% HRV" or "stopped in 10 days" are ILLUSTRATIVE here — do NOT put a specific number or day-count in ad copy unless the client confirms it.
 
 ### Tone calibration
 
@@ -379,7 +381,7 @@ Tea visual world is lighter and more atmospheric than the core blend. The blend 
 - "The lift that comes from the cell, not the adrenal gland."
 - "Activation without chaos."
 - "The morning that arrives without asking anything from your adrenal gland."
-- Copy-safe customer quote: "I haven't reached for coffee in three weeks. The 11am crash is just… gone."
+- Illustrative customer voice (not verbatim ad copy unless verified): "I haven't reached for coffee in three weeks. The 11am crash is just… gone."
 
 ### Afternoon Ritual — Overstimulation → Clarity
 - "The 4pm cliff doesn't exist anymore."
@@ -393,12 +395,12 @@ Tea visual world is lighter and more atmospheric than the core blend. The blend 
 ### Nighttime Ritual — Accumulation → Exhale
 - "Not knock-out tea. Permission tea."
 - "9pm. Reishi. The parasympathetic close."
-- "HRV up 18%."
+- "Deeper sleep you can measure." (cite a specific HRV % only if the client has verified it)
 - "The night your nervous system finally got to properly close."
 - "Replaced melatonin and magnesium. Week two."
 - "Recovery without sedation."
 - "A descent ritual."
-- Copy-safe customer quote: "It's not knock-you-out tea. It's permission tea. The body just understands what to do next."
+- Illustrative customer voice (not verbatim ad copy unless verified): "It's not knock-you-out tea. It's permission tea. The body just understands what to do next."
 
 ### Trifecta — The Full Arc
 - "All three. Three weeks. Let the body decide."
