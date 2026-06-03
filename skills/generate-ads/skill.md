@@ -109,15 +109,11 @@ The chosen `scene`/`visual_action` (or `visual`/`sides`) should *enact* the argu
 - Price is corroboration, not the hook — default `price: False`. Set `True` only when price is part of the ad's idea (a value/comparison concept); being structured or a comparison does NOT by itself earn it.
 - Product is ≥35% of image height, always the resolution of the concept.
 
-## Tea creative gotchas (write it right; the validator also enforces these)
+## Tea creative gotchas
 
-- **Morning is caffeine-free** — the lift is Cordyceps. Never imply caffeinated.
-- **Night = parasympathetic, not sedation** — never "fall asleep faster." Say HRV, fewer 2am wake-ups.
-- **Night brewed cup is NOT indigo** — the site shows/claims no such cup color, and it was never the point. A Night cup is a calm, warm herbal tea. Set `has_cup: True` only when a cup is genuinely in frame; never make cup color the hook or hero.
-- **No specific mg doses** — describe ingredients by name/function ("Reishi for parasympathetic calm"), never "250mg Reishi".
-- **Trifecta is ONE product** — never "try all three." Use "Get the Trifecta." Preserve the gold→sage→lavender gradient.
+Tea carries hard claim-guards: Morning caffeine-free (Cordyceps lift) · Night = parasympathetic, not sedation (never "fall asleep faster") · no mg doses · the Night cup is a natural warm tea, not indigo (`has_cup: True` only when a cup is genuinely in frame; never make cup color the hook) · no specific counts (4.9★ or "thousands") · tea price is $37.40, never $39 · Trifecta is ONE product ("Get the Trifecta", never "try all three"), preserve the gold→sage→lavender gradient.
 
-All product facts (prices, social proof, claims, SKU tables, positioning) are owned by **CLAUDE.md** and **tea-product-brief.md** — read them for the truth; don't restate it in specs.
+These — and all product facts (prices, social proof, SKU tables, positioning) — are owned by **CLAUDE.md → Ritual Tea Line** + **tea-product-brief.md** and **enforced by the validator** (a dry-run blocks violations). Write within them; never restate facts in specs.
 
 ## Validator guarantees (errors block generation unless --dry-run)
 

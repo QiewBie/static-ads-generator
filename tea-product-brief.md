@@ -284,15 +284,14 @@ Tea ads are **quieter and more precise** than blend ads. The blend declares. The
 | Loud, declarative | Quiet, precise, inevitable |
 
 ### What NOT to do in tea ads
+
+The hard claim-guards — Morning caffeine-free, Night = parasympathetic not sedation, no mg doses, no specific review/customer counts (4.9★ or "thousands"; 200,000+ is the blend's), the tea price anchor ($37.40, never $39), and "Get the Trifecta" never "try all three" — are owned by **CLAUDE.md → Ritual Tea Line** and **enforced by the engine validator** (a dry-run blocks any violation). Don't restate them; write within them.
+
+The creative-only don'ts unique to tea:
 - Do NOT use "everything at once" — that is the blend's line
-- Do NOT lead with price
-- Do NOT position tea as a replacement for the blend (they are complementary — tea at first light, latte after breakfast)
-- Do NOT promise sedation for Night — it's parasympathetic permission, not a knockout
-- Do NOT say Morning is caffeinated — it is caffeine-free, the lift is Cordyceps
-- Do NOT use 200,000+ customers — that figure belongs to the blend
-- Do NOT use "Try all three" as a Trifecta CTA — it implies 3 separate products. The Trifecta IS one product. Use "Get the Trifecta." / "Begin here." / "Start the ritual." instead
-- Do NOT put review counts or customer numbers in generated ad images — use only the star rating (4.9★) or "thousands" if social proof is needed visually
-- Do NOT use "From $39/month" — that's the blend price. Tea is "From $37.40/month"
+- Do NOT lead with price — tea is atmospheric; price is corroboration at most
+- Do NOT position tea as a replacement for the blend — they're complementary (tea at first light, latte after breakfast)
+- Do NOT collapse the system into "energy / focus / sleep" — frame the three blends as state transitions (see Strategic Positioning)
 
 ---
 
