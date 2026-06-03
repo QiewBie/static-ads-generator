@@ -25,11 +25,12 @@ gen.py                              ← calls Gemini → ad-workspace/[RUN_ID]/
 ## Workflow
 
 1. **Research** (if needed) — Tavily for product/audience, Scrape Creators for competitor ads. Never WebFetch/WebSearch.
-2. **Write specs** — each ad is one dict in a campaign. Start from `batches/_template.py`.
-3. **Dry run** — `python3 gen.py batches/<file>.py --campaign <name> --dry-run`. The validator prints errors (block generation) and warnings (fix if real).
-4. **Review** the assembled prompts.
-5. **Generate** — drop `--dry-run` (`--force` overwrites; `--only NN` re-runs one ad).
-6. **Deliverables** — images land in `ad-workspace/[RUN_ID]/`.
+2. **Diverge** — before writing any spec, sketch 2–3 genuinely different concepts per ad slot and pick the strongest. Never commit the first safe idea. See "Concept divergence" below.
+3. **Write specs** — each ad is one dict in a campaign. Start from `batches/_template.py`.
+4. **Dry run** — `python3 gen.py batches/<file>.py --campaign <name> --dry-run`. The validator prints errors (block generation) and warnings (fix if real).
+5. **Review** the assembled prompts.
+6. **Generate** — drop `--dry-run` (`--force` overwrites; `--only NN` re-runs one ad).
+7. **Deliverables** — images land in `ad-workspace/[RUN_ID]/`.
 
 ## The Spec
 
@@ -86,6 +87,16 @@ Each SKU has a `mood`; the engine rotates camera + lighting per ad (seeded by fi
 
 - **Acquisition (cold):** any format/archetype — incl. `ugc`, `testimonial`, `social_proof`, and the bold devices (`poster`, `screenshot`, `before_after`, `comparison`, the `stamp` field). Cold traffic rewards clarity and boldness; the brand's proven winners are loud. **Tea cold acquisition:** the quiet editorial register is the *default*, not a requirement — loud comparison/poster/bold-hook cuts are allowed and worth testing against the quiet one (don't lock cold tea into a whisper).
 - **Retarget (warm — already bought):** this is a **product LAUNCH to existing customers**, not an education campaign. Lead with the *news*, not proof. Core angles: "we made tea now!" · "loved the blend? try this" · a **two-product display** (blend + tea in one frame) · insider/early-access · "one of the first mushroom teas." `blocks`/`how_it_works` are the FOLLOW-UP for people who want detail. The validator **warns** on `comparison` (launch register is news, not an argument), `ugc`, `testimonial`, `social_proof` — warm buyers don't need convincing. Every retarget ad must carry a launch signal (Alcami / blend / new / first / now — the validator warns if none is present). Extend the relationship, never gap-fill ("what your ritual is missing" implies the blend is incomplete — it isn't). Keep early-access date-free in the image (no "Pre-Order", no ship dates).
+
+## Concept divergence (before specs)
+
+For each ad slot, rough out **2–3 distinct concepts** before committing to a spec. A concept = a hook + the device that performs it. Force them apart on three axes so you're *choosing*, not settling:
+
+- **Reference frame** — coffee · a nightcap / melatonin · a competitor · a number · provenance · a behavior. (Most cold hooks borrow one — vary which.)
+- **Device / archetype** — `comparison` · `poster` · `scene` · `screenshot` · `before_after` · `how_it_works` · `ugc`. (Don't render every idea as the same scene.)
+- **Emotion** — relief · attunement · pride · curiosity · belonging · skeptic-flipped.
+
+Then pick the concept whose hook→visual handoff is sharpest (see "How the hook and visual combine"). **Across a batch: no two ads may repeat the same frame + device + emotion triple** — if two land the same beat, cut one and diverge again. Gut check: if every concept you wrote is a quiet scene, you stopped early — push at least one loud (`poster`/`comparison`/`stamp`) and one mood-led (`associative`) into the mix before deciding.
 
 ## Hook rules (non-negotiable)
 
