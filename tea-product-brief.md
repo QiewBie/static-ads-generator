@@ -184,7 +184,7 @@ The tea canisters are a completely different visual object from the latte pouche
 
 ## Proof Points & Certifications
 
-**All verified — safe to use in ads:**
+**Safe to use in ads:**
 - USDA Organic — every herb in every blend, third-party verified
 - Made in Canada (Montreal) — short supply chain, batch records on request
 - Third-party tested every batch — heavy metals, pesticides, microbial contamination
@@ -193,7 +193,7 @@ The tea canisters are a completely different visual object from the latte pouche
 - Functional, meaningful mushroom dose per sachet — describe by name/function, never a specific mg
 - 90-day "feel it" guarantee
 
-**Social proof for tea (verified-safe):**
+**Social proof for tea:**
 - 4.9★ rating only — never a specific review count.
 - Use "thousands" or the star rating for social proof — no specific customer number. 200,000+ belongs to the blend exclusively.
 - Tea may borrow brand trust: "from the makers of Alcami." Cite NO specific customer number — 200,000+ is the blend's figure; tea uses "thousands" or 4.9★ only.

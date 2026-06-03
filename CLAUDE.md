@@ -121,9 +121,9 @@ Comes in **4 flavors** (30 daily servings per pouch):
 
 ## Proof Points & Certifications
 
-- 200,000+ happy customers (confirmed by client)
-- 200,000+ five-star reviews (confirmed by client)
-- NSF Certified (confirmed — dedicated blog post + founder announcement), GMP Certified Facility, Third-Party Lab Tested
+- 200,000+ happy customers
+- 200,000+ five-star reviews
+- NSF Certified, GMP Certified Facility, Third-Party Lab Tested
 - 90-day satisfaction guarantee
 - Customer-reported outcomes: 84% increased energy, 78% improved focus, 89% enhanced calmness
 
@@ -424,7 +424,20 @@ Follow the 6-phase process in `skills/generate-ads/skill.md` (covers both blend 
 Active Facebook/Instagram ad copy pattern:
 - Hook: "Tired of running on empty?"
 - Angle: "Anti-Lazy Formula" — 9 super-herbs & mushrooms, 10x clinical potency
-- Proof: "200,000+ people already trust Alcami" — figure confirmed by client, safe to use
+- Proof: "200,000+ people already trust Alcami"
 - CTA: "Shop Now" → triple bundle page
 
-Avoid repeating these exact hooks in new creative batches — find fresh angles.
+New creative batches use fresh angles — these exact hooks are already live.
+
+---
+
+## Writing Convention — always current state
+
+When you create or edit **any** file in this project (this doc, `tea-product-brief.md`, the skills, code comments in `prompt_builder.py` / `gen.py`, batch specs, memory), state information as **present-tense current state**. Describe what *is*, never how it got there.
+
+- **No changelog narration in files.** Never write "X used to be Y, now it's Z," "RETIRED," "previously," "replaces the old…," "we changed." State the current rule directly. History belongs in the git commit message, not the file.
+- **No authority/provenance justification.** Never write "confirmed by client," "based on team-lead feedback," "per the user," "safe because verified by." In this workspace the file *is* the authority — state the fact plainly.
+- **Rationale is welcome, framed as why-it-is — not why-it-changed.** "CTAs render as contained buttons (a full-width band reads as a flat footer)" — yes. "We changed CTAs because the band was wrong before" — no.
+- **When you change something, rewrite the affected text so it reads as if it had always been written that way.** Don't leave a trail of edits; leave a clean current statement.
+
+This applies to all future edits without exception.

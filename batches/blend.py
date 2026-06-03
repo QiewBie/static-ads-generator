@@ -16,20 +16,20 @@
 #   Tea observes — quiet, precise, recognition-driven
 #   Blend ads can be bold and direct where tea ads are atmospheric and earned
 #
-# Core blend angles (all still valid — don't repeat currently running hooks):
+# Core blend angles:
 #   · Coffee replacement (no jitter, no crash, still sharp)
 #   · Supplement stack elimination (9 things, one ritual)
 #   · Earned trust vs. celebrity credibility (200K real customers, no podcast deals)
 #   · Taste as compliance (you actually look forward to this one)
 #   · Transparency vs. proprietary blends (10:1 extract, every dose disclosed)
 #
-# Currently running (avoid repeating):
+# Hooks already live — use fresh angles, not these:
 #   "Tired of running on empty?" / "Anti-Lazy Formula" / "9 super-herbs & mushrooms"
 # ─────────────────────────────────────────────────────────────────────────────
 
 CAMPAIGNS = {
 
-    # ── main_v2 — replaces batch_main_product.py with slim spec format ─────────
+    # ── main_v2 — core blend acquisition set, mixed formats ────────────────────
     # Run: python3 gen.py batches/blend.py --campaign main_v2
     "main_v2": {
         "run_id": None,

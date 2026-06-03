@@ -281,8 +281,9 @@ CTA_STYLES = {
     "integrated":   "woven into the headline lockup as its closing line, same type family but visibly the action (a color or weight shift sets it apart) — no separate box",
     "none":         "no visible CTA in the image — the CTA lives in the ad copy text field only",
 }
-# Back-compat aliases for older specs. The full-width 'band' is RETIRED — it cut
-# the composition; it now resolves to a contained button.
+# Aliases for older spec names — each resolves to a contained button. CTA styles
+# are always self-contained buttons, never a full-width band (a band reads as a
+# flat footer, not an action).
 CTA_STYLES.update({
     "band_bottom":       CTA_STYLES["button"],
     "pill_bottom":       CTA_STYLES["pill"],
@@ -295,7 +296,7 @@ CTA_STYLES.update({
 PRICE_STYLES = {
     "pill":     "a slim horizontal pill, gold #867353 fill, near-black bold text — designed, not bolted on",
     "footnote": "small spaced text, below the main copy, minimal — a supporting detail",
-    "band":     "a slim contained gold #867353 pill, near-black bold text — full-width price bands are retired; render it contained, never edge-to-edge",
+    "band":     "a slim contained gold #867353 pill, near-black bold text — contained, never edge-to-edge",
     "none":     None,
 }
 
@@ -1085,8 +1086,8 @@ This should feel like a premium brand explaining something clearly — not a sup
 
 
 # ── Spec validation ─────────────────────────────────────────────────────────
-# Enforces the brand/format rules that previously lived only in prose. Called by
-# gen.py: warnings always print; errors block real generation (not --dry-run).
+# Enforces the brand/format rules in code. Called by gen.py: warnings always
+# print; errors block real generation (not --dry-run).
 
 VALID_FORMATS = {"scene", "comparison", "blocks", "ugc", "how_it_works"}
 
@@ -1332,7 +1333,7 @@ def build_prompt(ad: dict) -> str:
         cta             — CTA text (default: "Shop Now")
         cta_style       — "button" / "button_right" / "pill" / "pill_right" /
                           "text_link" / "integrated" / "none"  (all render as
-                          self-contained buttons; the full-width band is retired)
+                          self-contained buttons, never a full-width band)
         extra_refs      — list of {"key": "path"} dicts for additional reference images
         color_world     — override for blocks/how_it_works format color description
         visual          — override for comparison format visual description

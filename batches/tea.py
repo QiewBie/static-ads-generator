@@ -160,7 +160,7 @@ CAMPAIGNS = {
                 "price": False,
             },
 
-            # 08 — Pioneer claim · Night (replaces the old indigo-moment angle)
+            # 08 — Pioneer claim · Night
             {
                 "file": "08_pioneer_night.png",
                 "product_type": "tea",
