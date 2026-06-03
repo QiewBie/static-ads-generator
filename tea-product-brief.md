@@ -123,7 +123,7 @@ The Ritual Tea Line is a fundamentally different proposition from the Creamy Mus
 - Most members then re-order single tubes of their primary blend
 
 **Ad angles:**
-1. New customer acquisition — low-risk, exploratory entry ("try all three, your body will choose")
+1. New customer acquisition — low-risk, exploratory entry (explore the full arc across all three blends; the body reveals which it needs). The CTA is always "Get the Trifecta" — never "try all three," which implies three separate products (and the validator hard-errors on it).
 2. Gift marketing — most obvious gifting product in the line
 3. Full-day-arc storytelling — morning → afternoon → night as one complete narrative
 
@@ -196,7 +196,7 @@ The tea canisters are a completely different visual object from the latte pouche
 **Social proof for tea (verified-safe):**
 - 4.9★ rating only — never a specific review count.
 - Use "thousands" or the star rating for social proof — no specific customer number. 200,000+ belongs to the blend exclusively.
-- Tea may borrow brand trust: "from the makers of Alcami" / "100,000+ people use Alcami."
+- Tea may borrow brand trust: "from the makers of Alcami." Cite NO specific customer number — 200,000+ is the blend's figure; tea uses "thousands" or 4.9★ only.
 
 ---
 
