@@ -228,17 +228,43 @@ BLEND_SKUS = {
 }
 
 # ── Hard rules — appended to every prompt ────────────────────────────────────
+# The PRODUCT clause is archetype-aware: for idea-led archetypes (poster, screenshot,
+# ugc) the type/number/moment is the hero and the product need not dominate. Everything
+# else (legibility, full-bleed, no garbled text) is a true non-negotiable on every ad.
 
-HARD_RULES = """
+_HARD_RULES_TMPL = """
 HARD RULES — apply without exception:
 · DESIGN, don't transcribe: render ONLY the words in the explicit text/copy fields. Never draw field labels, quote marks, art-direction notes, bullet/leading marks (· • - *), or this brief's line breaks. Grouping, line breaks, alignment and spacing are YOUR design decisions; items are visual objects (chips, cards, columns), never a document list.
 · NO forbidden text: no dates, ship dates, deadlines, URLs, domain names, or review-count numbers (star rating like 4.9★ is fine).
 · PUNCTUATION: plain hyphens (-) only, never en/em dashes (– —); no decorative bullet marks in any rendered text.
 · FULL BLEED: fill the entire 1:1 square to all four edges — sharp square corners, NO rounded corners, NO border, frame, matte, or device/phone mockup around the image.
-· PRODUCT: the canister/pouch is ≥35% of image height, the resolution of the concept (not decoration), with a soft diffused shadow beneath it — never a flat cutout. Text never overlaps, covers, or crops the product — they occupy separate zones.
+· {product_rule}
 · TEXT LEGIBILITY: place text in the clean, uncluttered negative space of the frame first. Only when contrast is genuinely insufficient, add a SOFT gradient scrim that fades to transparent, sized just to the text — never a hard-edged opaque rectangle, never a full-width band, never over the product.
 · CTA: a self-contained tappable button (sized to its text, margin from the edges), the single highest-contrast element on the canvas — never a full-width footer stripe.
 · NO floating body parts: any human element is visibly attached to a person in full context."""
+
+_PRODUCT_RULE_HERO = ("PRODUCT: the canister/pouch is ≥35% of image height, the resolution of the "
+    "concept (not decoration), with a soft diffused shadow beneath it — never a flat cutout. Text "
+    "never overlaps, covers, or crops the product — they occupy separate zones.")
+
+_PRODUCT_RULE_SUPPORT = ("PRODUCT: the canister/pouch is reproduced ACCURATELY and is clearly present, "
+    "but it need NOT dominate — the oversized type/number, the screenshot, or the person's moment is "
+    "the hero. Keep the label truthful and legible (a soft shadow if it rests on a surface); never a "
+    "garbled or invented label. Text never crops or covers the product.")
+
+# Archetypes where the IDEA, not the product's size, is the hero.
+_PRODUCT_SUPPORT_ARCHETYPES = {"poster", "screenshot", "ugc_minimal"}
+
+
+def _hard_rules(ad: dict) -> str:
+    """HARD_RULES with an archetype-appropriate product clause."""
+    rule = (_PRODUCT_RULE_SUPPORT if ad.get("archetype") in _PRODUCT_SUPPORT_ARCHETYPES
+            else _PRODUCT_RULE_HERO)
+    return _HARD_RULES_TMPL.format(product_rule=rule)
+
+
+# Back-compat: the hero variant as a plain constant for any external reference.
+HARD_RULES = _HARD_RULES_TMPL.format(product_rule=_PRODUCT_RULE_HERO)
 
 # ── CTA style guide ───────────────────────────────────────────────────────────
 # The cta_style field in the spec. Builder maps these to prompt instructions.
@@ -755,7 +781,7 @@ DESIGN DEPTH:
 · Text and product occupy SEPARATE zones: the text lives in the clean negative space of the scene, never on top of or cropping the product. For legibility, prefer placing text where the background is already calm; if contrast is short, use a soft gradient scrim that fades to transparent, sized to the text only — never a hard opaque box, never a full-width band.
 · Subtle vignette at canvas corners if the scene needs it — draws focus toward the product and text.{text_line}{category_line}{night_cup_line}{_stamp_line(ad)}{price_line}{cta_line}
 
-{HARD_RULES}
+{_hard_rules(ad)}
 
 This should NOT look like a generic wellness ad. It should {sku['closing']}."""
 
@@ -836,7 +862,7 @@ DESIGN DEPTH:
 TONE: Confident and factual. Not aggressive. The comparison speaks for itself.
 {category_line}{night_cup_line}{_stamp_line(ad)}{price_line}{cta_line}
 
-{HARD_RULES}
+{_hard_rules(ad)}
 
 This should NOT look like a generic wellness comparison. It should feel like a brand presenting facts — not selling."""
 
@@ -923,7 +949,7 @@ COLOR WORLD: {color}. The palette lives in the light, surfaces and graphic zones
 
 {_BLOCKS_DESIGN_TAIL}{category_line}{night_cup_line}{_stamp_line(ad)}{price_line}{cta_line}
 
-{HARD_RULES}
+{_hard_rules(ad)}
 
 The result must look designed by a person with taste — structured, legible, premium — and NOT like a text document with bullet points."""
     return prompt
@@ -994,7 +1020,7 @@ ENVIRONMENT RULES (non-negotiable):
 · The person's face must be visible and in context — no backs to camera, no silhouettes that hide identity.
 · Aspirational-real: the kind of apartment you'd want to live in, not a documentary of a messy one.{text_line}{night_cup_line}{_stamp_line(ad)}{price_line}{cta_line}
 
-{HARD_RULES}
+{_hard_rules(ad)}
 
 This should look like it was filmed by a real customer — not a brand. If it looks like an ad, it has failed. If the background is cluttered with other brands' products, it has failed."""
 
@@ -1073,7 +1099,7 @@ TYPOGRAPHY HIERARCHY:
 · Clean bold sans-serif for step labels. Regular weight sans-serif for detail. High contrast throughout.
 {category_line}{night_cup_line}{_stamp_line(ad)}{price_line}{cta_line}
 
-{HARD_RULES}
+{_hard_rules(ad)}
 
 This should feel like a premium brand explaining something clearly — not a supplement warning label. Structure is the design."""
 

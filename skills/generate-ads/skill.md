@@ -57,7 +57,9 @@ Every format **except `ugc`** renders this structured text block (`ugc` stays de
 - `emphasis` — per-word typography: a dict of `{"phrase": "treatment"}`. Treatments: `bold` · `italic` · `underline` · `strike` (negates — great for comparison "before" rows) · `gold` (brand accent) · `boxed` (own background chip).
   - The validator **enforces placement**: a phrase not in the headline/subhead is a hard **error**; a stopword ("the") or a phrase appearing twice is a **warning**. Emphasis always lands on a real, meaningful word.
 
-**Register — most ads should be straightforward.** By default the product **category** ("Adaptogenic Mushroom Tea" / "Superfood Mushroom Latte") is forced legible so a stranger instantly knows what it is. For a deliberately mood-led, association-driven ad, set `"associative": True` to suppress it. Override the wording with `category_cue`.
+**Register — pick one deliberately, don't default to safe.** Two legitimate modes:
+- **Explanatory** (the default) — the product **category** ("Adaptogenic Mushroom Tea" / "Superfood Mushroom Latte") is forced legible so a stranger instantly knows what it is.
+- **Associative / mood-led** — set `"associative": True` to suppress the forced category so the ad can lead with feeling and intrigue (the "From the forest" winner is this mode). This is a **first-class choice** for the right concept, not a fallback — reach for it when the image earns recognition rather than explanation. Override category wording with `category_cue`.
 
 When the ad needs information (pain points, bullets, a testimonial), use the body fields for that format — `items` (blocks), `sides` (comparison), `steps` (how_it_works) — alongside headline/subhead. Match the amount of text to the format.
 
@@ -82,7 +84,7 @@ Each SKU has a `mood`; the engine rotates camera + lighting per ad (seeded by fi
 
 ## Audience fit (enforced by the validator)
 
-- **Acquisition (cold):** any format/archetype, incl. `ugc`, `testimonial`, `social_proof`.
+- **Acquisition (cold):** any format/archetype — incl. `ugc`, `testimonial`, `social_proof`, and the bold devices (`poster`, `screenshot`, `before_after`, `comparison`, the `stamp` field). Cold traffic rewards clarity and boldness; the brand's proven winners are loud. **Tea cold acquisition:** the quiet editorial register is the *default*, not a requirement — loud comparison/poster/bold-hook cuts are allowed and worth testing against the quiet one (don't lock cold tea into a whisper).
 - **Retarget (warm — already bought):** this is a **product LAUNCH to existing customers**, not an education campaign. Lead with the *news*, not proof. Core angles: "we made tea now!" · "loved the blend? try this" · a **two-product display** (blend + tea in one frame) · insider/early-access · "one of the first mushroom teas." `blocks`/`how_it_works` are the FOLLOW-UP for people who want detail. The validator **warns** on `comparison` (launch register is news, not an argument), `ugc`, `testimonial`, `social_proof` — warm buyers don't need convincing. Every retarget ad must carry a launch signal (Alcami / blend / new / first / now — the validator warns if none is present). Extend the relationship, never gap-fill ("what your ritual is missing" implies the blend is incomplete — it isn't). Keep early-access date-free in the image (no "Pre-Order", no ship dates).
 
 ## Hook rules (non-negotiable)

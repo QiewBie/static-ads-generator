@@ -283,6 +283,8 @@ Tea ads are **quieter and more precise** than blend ads. The blend declares. The
 | Relief — the moment exhaustion ends | Attunement — the day has a shape |
 | Loud, declarative | Quiet, precise, inevitable |
 
+**The quiet register is the default, not a cage — calibrate to the audience.** For warm/retarget and brand-voice moments, observe (quiet, editorial). But **cold acquisition** rewards clarity and boldness — a stranger has to *get it* in under 2s, and the blend's data shows loud comparison/poster devices win cold traffic. So for cold tea acquisition you MAY borrow the louder toolkit (`comparison`, `poster`, a bold borrowed-frame hook, a `stamp` for a true state) and test it against the quiet editorial cut. The factual claim-guards still apply; only the *register* loosens.
+
 ### What NOT to do in tea ads
 
 The hard claim-guards — Morning caffeine-free, Night = parasympathetic not sedation, no mg doses, no specific review/customer counts (4.9★ or "thousands"; 200,000+ is the blend's), the tea price anchor ($37.40, never $39), and "Get the Trifecta" never "try all three" — are owned by **CLAUDE.md → Ritual Tea Line** and **enforced by the engine validator** (a dry-run blocks any violation). Don't restate them; write within them.
