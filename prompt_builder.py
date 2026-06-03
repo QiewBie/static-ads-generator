@@ -1358,6 +1358,13 @@ def build_prompt(ad: dict) -> str:
         extra_refs      — list of {"key": "path"} dicts for additional reference images
         color_world     — override for blocks/how_it_works format color description
         visual          — override for comparison format visual description
+        associative     — True suppresses the forced category cue (mood-led mode)
+        stamp           — opt-in overlay stamp text ("RESTOCK"/"NEW"/"BESTSELLER");
+                          use ONLY for a literally true state (validator warns)
+
+    Design archetypes (see DESIGN_ARCHETYPES / `gen.py --policy`):
+        editorial · spec_card · annotated · color_block · badge · ugc_minimal ·
+        testimonial · social_proof · poster · screenshot · before_after
 
     blocks sub-styles (set via style field, affects opening framing):
         "ingredient_breakdown" — botanical visual + ingredient list with effects

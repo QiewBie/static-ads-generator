@@ -366,7 +366,7 @@ assets/brand/
 │   ├── Version 1.jpg              ← Full brand kit: pouch + sachets + mug + frother + spoon + tote + mushroom keychain
 │   ├── Version 2.jpg              ← Kit without tote: pouch + sachets + mug + frother + spoon
 │   └── Version 3.jpg              ← Minimal kit: pouch + mug + frother + spoon
-├── ingredients /              ← Individual ingredient photography (folder has trailing space)
+├── ingredients/               ← Individual ingredient photography
 │   ├── Reishi.png + Reishi_R2.png
 │   ├── Lion_s Mane R1.png
 │   ├── Cordyceps.png
@@ -375,7 +375,9 @@ assets/brand/
 │   ├── He Shou Wu.png
 │   ├── Polygala_R1.png
 │   ├── gynostemma 2.png
-│   └── MUCUNA.png + MUCUNA2.png
+│   └── MUCUNA.png
+├── refs/                      ← Proven high-performing Alcami ads (study for the
+│                                  way of thinking, not phrases to lift — see skill)
 └── alcami guidelines (1).pdf  ← Brand guidelines (fonts, colors, logo rules)
 ```
 
