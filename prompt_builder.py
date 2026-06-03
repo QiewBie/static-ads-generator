@@ -934,7 +934,8 @@ def _build_blocks_prompt(ad: dict, sku: dict) -> str:
         block_lines = "\n".join(
             f"  {b.get('size','medium')} block: {_fill(b.get('content',''), ad)}" for b in blocks
         )
-        content_section = f"""HOOK: {ad['hook']}
+        sub_emph = _subhead_emphasis_chips(ad, ad.get("headline") or ad["hook"], with_chips=False)
+        content_section = f"""HOOK: {ad['hook']}{sub_emph}
 
 CONTENT BLOCKS — {len(blocks)} blocks, largest dominates, smaller blocks support (interpret as a layout, not a transcript):
 {block_lines}"""

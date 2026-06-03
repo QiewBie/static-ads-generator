@@ -30,7 +30,12 @@ try:
 except Exception:
     pass
 
-MODEL = "gemini-3-pro-image"   # pro image tier — best text fidelity. Flash: gemini-3.1-flash-image-preview
+# Image model + automatic fallback. The pro tier has the best text fidelity; when it is
+# rate-limited (429 / quota), the run falls back to flash automatically so a single
+# exhausted quota doesn't wall the whole batch.
+PRIMARY_MODEL  = "gemini-3-pro-image"
+FALLBACK_MODEL = "gemini-3.1-flash-image-preview"
+MODELS = [PRIMARY_MODEL, FALLBACK_MODEL]
 
 
 def load_env(path=".env") -> dict:
@@ -175,10 +180,9 @@ REFS_DIR = OUT / "references"
 if not dry_run:
     os.makedirs(REFS_DIR, exist_ok=True)
 
-API_URL = (
-    "https://generativelanguage.googleapis.com/v1beta/models/"
-    f"{MODEL}:generateContent?key=" + (api_key or "")
-)
+def _api_url(model: str) -> str:
+    return ("https://generativelanguage.googleapis.com/v1beta/models/"
+            f"{model}:generateContent?key=" + (api_key or ""))
 
 # TLS: this environment's Python lacks system CA certs, so verification is OFF by
 # default (matches the working setup). Set GEMINI_VERIFY_SSL=1 to turn it on.
@@ -211,11 +215,14 @@ for key, src in ({} if dry_run else REFS).items():
 # ── Generation function ───────────────────────────────────────────────────────
 
 def gen(prompt: str, ref_keys: list, fname: str, delay: int = 15):
+    """Generate one image. Tries the primary model, and on a 429/quota switches to the
+    fallback model instead of burning the full backoff on an exhausted quota.
+    Returns (ok, kb, model_used)."""
     parts = [{"text": prompt}]
     for key in ref_keys:
         if key not in loaded:
             print(f"      ✗ ref key '{key}' not found in REFS — check your batch file")
-            return False, 0
+            return False, 0, None
         parts.append({"inlineData": {"mimeType": "image/png", "data": loaded[key]}})
 
     payload = json.dumps({
@@ -226,34 +233,43 @@ def gen(prompt: str, ref_keys: list, fname: str, delay: int = 15):
         }
     }).encode()
 
-    for attempt in range(1, 4):
-        try:
-            req  = urllib.request.Request(
-                API_URL, data=payload,
-                headers={"Content-Type": "application/json"}
-            )
-            resp = urllib.request.urlopen(req, timeout=180, context=CTX)
-            body = json.loads(resp.read())
-            for part in (body.get("candidates", [{}])[0]
-                             .get("content", {}).get("parts", [])):
-                if "inlineData" in part:
-                    img = base64.b64decode(part["inlineData"]["data"])
-                    with open(OUT / fname, "wb") as f:
-                        f.write(img)
-                    time.sleep(delay)
-                    return True, len(img) // 1024
-                elif "text" in part:
-                    print(f"      model: {part['text'][:80]}")
-            print(f"      attempt {attempt}: no image in response")
-        except Exception as e:
-            msg = str(e)
-            print(f"      attempt {attempt}: {msg[:80]}")
-            if "429" in msg or "quota" in msg.lower():
-                print("      rate limited — waiting 60s")
-                time.sleep(60)
-            elif attempt < 3:
-                time.sleep(10)
-    return False, 0
+    for mi, model in enumerate(MODELS):
+        is_last_model = mi == len(MODELS) - 1
+        if mi > 0:
+            print(f"      ↪ falling back to {model}")
+        for attempt in range(1, 4):
+            try:
+                req  = urllib.request.Request(
+                    _api_url(model), data=payload,
+                    headers={"Content-Type": "application/json"}
+                )
+                resp = urllib.request.urlopen(req, timeout=180, context=CTX)
+                body = json.loads(resp.read())
+                for part in (body.get("candidates", [{}])[0]
+                                 .get("content", {}).get("parts", [])):
+                    if "inlineData" in part:
+                        img = base64.b64decode(part["inlineData"]["data"])
+                        with open(OUT / fname, "wb") as f:
+                            f.write(img)
+                        time.sleep(delay)
+                        return True, len(img) // 1024, model
+                    elif "text" in part:
+                        print(f"      model: {part['text'][:80]}")
+                print(f"      [{model}] attempt {attempt}: no image in response")
+            except Exception as e:
+                msg = str(e)
+                print(f"      [{model}] attempt {attempt}: {msg[:80]}")
+                if "429" in msg or "quota" in msg.lower():
+                    # Rate-limited: jump to the next model rather than waiting out the
+                    # full backoff on a quota that's likely exhausted. Only sleep if
+                    # there's no fallback left to try.
+                    if not is_last_model:
+                        break
+                    print("      rate limited — waiting 60s")
+                    time.sleep(60)
+                elif attempt < 3:
+                    time.sleep(10)
+    return False, 0, None
 
 # ── Run ───────────────────────────────────────────────────────────────────────
 
@@ -289,11 +305,12 @@ for i, ad in enumerate(ADS, 1):
         results.append({"file": fname, "status": "dry-run"})
         continue
 
-    ok, kb = gen(ad["prompt"], ad["refs"], fname)
+    ok, kb, model = gen(ad["prompt"], ad["refs"], fname)
     if ok:
         consec_fail = 0
-        print(f"      ✓ {kb}KB")
-        results.append({"file": fname, "status": "ok", "kb": kb})
+        via = "" if model == PRIMARY_MODEL else f"  [via fallback: {model}]"
+        print(f"      ✓ {kb}KB{via}")
+        results.append({"file": fname, "status": "ok", "kb": kb, "model": model})
     else:
         consec_fail += 1
         print(f"      ✗ FAILED")
