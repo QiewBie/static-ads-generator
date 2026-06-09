@@ -1,5 +1,11 @@
 # Competitor Research: IM8 & AG1
-**Date:** May 2026 | **For:** Alcami Elements ad strategy
+**Current as of:** June 2026 | **For:** Alcami Elements ad strategy
+
+> **Pricing & facts (June 2026):** AG1 **$79/mo** (30 servings, $99 one-time); IM8 Essentials **~$79/mo** sub ($99–112 one-time, higher tiers up to ~$104/mo). Both run **proprietary blends with undisclosed individual doses** (AG1 75+ ingredients; both reported low on vitamin D / iron). **AG1 taste is *polarizing*, not universally disliked** — some testers compare it to matcha, others can't drink it daily; the honest angle is "an acquired, earthy greens taste = a real *compliance* barrier," never "it tastes bad."
+
+> **Live Meta ads — June 2026** (Scrape Creators, ~30 active each): the celebrity/authority lean is front-and-center — the wedge for our earned-trust angle.
+> - **IM8** (pages: `345914995276546` IM8 Health): "Replaces 16 daily supplements in one clinically dosed, NSF Certified scoop." Heavy free-Welcome-Kit offer; "New Formula. New Flavours." UGC-testimonial cuts ("@im8health… I stopped wasting money on 16+ supplements"). Authority: **"Co-founded by David Beckham"** + "**Inter Miami CF has taken an equity stake in Prenetics**" (sports-equity credibility play). CTAs: *Get offer · Shop now · Learn more.*
+> - **AG1** (page `183869772601`): **Hugh Jackman** "morning ritual since 2021" (celebrity); "Most supplements aren't backed by science. AG1 Next Gen is" (clinical-backing); "daily foundational nutrition for every life stage"; "75 ingredients, one easy ritual." Now in **retail (Target nationwide)** and launching a **night SKU, AGZ** (magnesium + L-theanine + saffron, "without the grogginess of melatonin"). CTAs: *Learn more · Shop now.*
 
 ---
 

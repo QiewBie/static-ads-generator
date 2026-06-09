@@ -768,7 +768,7 @@ SCENE: {ad['scene']}
 
 VISUAL ACTION: {ad['visual_action']}
 
-COLOR WORLD: The entire scene is {sku['color_scene']}. The product belongs here because the world was built for it. NOTE: "color world" means the ambient light, surfaces, and atmosphere carry this tone — NOT the literal pigment of a person's skin or clothing. People stay naturally colored; the world around them carries the palette.
+COLOR WORLD: The entire scene is {ad.get('color_world') or sku['color_scene']}. The product belongs here because the world was built for it. NOTE: "color world" means the ambient light, surfaces, and atmosphere carry this tone — NOT the literal pigment of a person's skin or clothing. People stay naturally colored; the world around them carries the palette.
 
 CAMERA: {camera}.
 
@@ -1091,6 +1091,15 @@ This should feel like a premium brand explaining something clearly — not a sup
 
 VALID_FORMATS = {"scene", "comparison", "blocks", "ugc", "how_it_works"}
 
+# Rival BRANDS may be named in creative (people/celebrities never). When one appears
+# in rendered text the validator reminds that comparative claims carry obligations:
+# true, parallel, substantiated — and a rival's mark is shown by form factor + name,
+# never a distorted logo. Distinctive names only, to avoid false positives on common words.
+COMPETITOR_NAMES = (
+    "ryze", "mudwtr", "mud\\wtr", "mud wtr", "everyday dose", "four sigmatic",
+    "im8", "cymbiotika", "ag1", "athletic greens",
+)
+
 # Fields whose text is actually RENDERED in the creative (vs. art-direction notes
 # like `scene`/`visual_action` that only guide the model and are never drawn).
 def _rendered_texts(ad: dict) -> list:
@@ -1234,6 +1243,19 @@ def validate_spec(ad: dict) -> tuple:
                 f"to a customer who already bought. Make it unmistakably a launch."
             )
 
+    # ── Competitor mentions: naming a rival BRAND is allowed; the obligations are not ──
+    # Comparative claims must be TRUE, parallel, and substantiated; a rival is shown by
+    # form factor + named in text, never as a distorted logo; people are never named.
+    rendered_low = " ".join(t for _, t in _rendered_texts(ad)).lower()
+    for brand in COMPETITOR_NAMES:
+        if brand in rendered_low:
+            warnings.append(
+                f"{fid}: names competitor '{brand}' — every comparative claim must be TRUE, parallel, and "
+                f"substantiated (same dimension per row). Show their product by form factor and name them in "
+                f"text; never reproduce a competitor logo at distorting fidelity; never name people. Alcami stays the resolution."
+            )
+            break
+
     # ── Brand-claim guards on RENDERED text ──
     for where, text in _rendered_texts(ad):
         low = text.lower()
@@ -1335,7 +1357,11 @@ def build_prompt(ad: dict) -> str:
                           "text_link" / "integrated" / "none"  (all render as
                           self-contained buttons, never a full-width band)
         extra_refs      — list of {"key": "path"} dicts for additional reference images
-        color_world     — override for blocks/how_it_works format color description
+        color_world     — palette/world override for scene, blocks, and how_it_works
+                          (scene defaults to the SKU's color_scene; set this to break
+                          the per-SKU look and give same-SKU ads distinct worlds)
+        camera          — override the sampled camera (e.g. "overhead flat-lay",
+                          "extreme macro", "low hero angle") for scene-format variety
         visual          — override for comparison format visual description
         associative     — True suppresses the forced category cue (mood-led mode)
         stamp           — opt-in overlay stamp text ("RESTOCK"/"NEW"/"BESTSELLER");

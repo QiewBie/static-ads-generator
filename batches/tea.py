@@ -435,4 +435,234 @@ CAMPAIGNS = {
         ],
     },
 
+    # ── pioneer_v1 — category-creator launch, every ad a distinct visual system ─
+    # Retarget launch turned UP on the PIONEER claim, engineered so no two ads share
+    # a frame, palette, product treatment, OR a line of copy. Each scene overrides
+    # color_world + camera to break the per-SKU look; SKUs spread 4/2/2/2. Treatments:
+    # poster type, a dark cinematic cup, overhead spilled sachets, a sachet steeping
+    # in glass, a 3-zone graphic, hands-and-cup at a window, a macro engraving, a dark
+    # two-product shelf, a candid cafe, and a saturated jewel hero. CTAs vary across
+    # the full set. Copy is fresh — no line reused from launch_v1. Claims stay
+    # defensible ("we started this" / "one of the first" / "first built for X") —
+    # never "the only" or "world's first".
+    "pioneer_v1": {
+        "run_id": None,
+        "audience": "retarget",
+        "ads": [
+
+            # 01 — Poster · Trifecta · bright graphic, type-dominant
+            {
+                "file": "01_started_the_category.png",
+                "product_type": "tea",
+                "sku": "trifecta",
+                "format": "scene",
+                "archetype": "poster",
+                "hook": "We discovered something, then we made the first mushroom tea.",
+                "headline": "We discovered something.",
+                "subhead": "So we made one of the first mushroom teas.",
+                "emphasis": {"discovered": "gold"},
+                "color_world": "a clean, bright off-white gallery field with one bold band of saturated brand gold #867353 — graphic and confident, almost a printed poster, not a soft flat-lay",
+                "camera": "flat, head-on graphic-poster framing, no perspective distortion",
+                "scene": "A typographic poster: the statement set huge across the top two-thirds; the gradient Trifecta tube standing small and crisp on a narrow plinth at lower-center, like a museum label beneath a headline.",
+                "visual_action": "Type is the hero and the tube is the receipt — the proof the claim is real.",
+                "cta": "Try the Tea",
+                "cta_style": "integrated",
+                "price": False,
+            },
+
+            # 02 — Night · dark cinematic, brewed cup is hero, low angle
+            {
+                "file": "02_made_for_10pm.png",
+                "product_type": "tea",
+                "sku": "night",
+                "format": "scene",
+                "archetype": "editorial",
+                "hook": "We made a mushroom tea for 10pm.",
+                "headline": "We made a tea for 10pm.",
+                "subhead": "Reishi, zero caffeine. A calm wind-down.",
+                "emphasis": {"tea": "gold"},
+                "color_world": "near-black cinematic darkness broken only by a low warm pool of lamplight on the cup and tube — deep shadow, moody, editorial, the navy canister almost dissolving into the dark",
+                "camera": "low three-quarter angle, shallow depth of field, the steaming cup closest to camera",
+                "scene": "Late night. A low warm lamp throws a single pool of light over a steaming cup of warm herbal tea in the foreground, the navy Night tube just behind it, everything else swallowed by darkness.",
+                "visual_action": "The brewed cup is the hero, not the canister — the felt 10pm moment, the tube as quiet proof behind it.",
+                "has_cup": True,
+                "cta": "Shop the Night",
+                "cta_style": "text_link",
+                "price": False,
+            },
+
+            # 03 — Morning · overhead flat-lay, sachets spilled out
+            {
+                "file": "03_lift_without_caffeine.png",
+                "product_type": "tea",
+                "sku": "morning",
+                "format": "scene",
+                "archetype": "editorial",
+                "hook": "A better morning that doesn't run on caffeine.",
+                "headline": "Better mornings, no caffeine.",
+                "subhead": "Cordyceps, not coffee. Our new morning tea.",
+                "emphasis": {"Better mornings": "gold"},
+                "color_world": "warm golden 7am daylight raking across a pale surface from a low side angle, honey-toned and airy, long soft morning shadows",
+                "camera": "directly overhead flat-lay, everything arranged on the surface below",
+                "scene": "An overhead flat-lay on a sunlit pale-wood counter: the amber-gold Morning tube open, three pyramid sachets spilled out beside it in a loose fan, a spoon and an empty cup, raking golden light.",
+                "visual_action": "The product opened up and laid out from above — the sachets, the lift, the morning — not a tube standing on a table.",
+                "has_cup": False,
+                "cta": "Explore Mornings",
+                "cta_style": "button_right",
+                "price": False,
+            },
+
+            # 04 — Afternoon · sachet steeping in a clear glass, sunlit desk
+            {
+                "file": "04_steep_your_3pm.png",
+                "product_type": "tea",
+                "sku": "afternoon",
+                "format": "scene",
+                "archetype": "editorial",
+                "hook": "We made a fix for the 3pm slump.",
+                "headline": "A tea to fix your 3pm.",
+                "subhead": "Lion's Mane clarity, fresh in your glass. New.",
+                "emphasis": {"3pm": "gold"},
+                "color_world": "bright clean midday daylight, fresh sage-and-glass tones, crisp cool shadows on a sunlit desk",
+                "camera": "eye-level macro on a clear glass cup, the sachet steeping mid-frame, ultra-shallow focus",
+                "scene": "A bright sunlit desk at 3pm. A pyramid sachet steeping in a clear glass cup, soft tendrils of herbal color releasing into the hot water, the sage-green Afternoon tube softly out of focus behind it.",
+                "visual_action": "The brew itself is the hero — the sachet blooming in clear glass — proof of real fruiting-body inside, not a tube on a table.",
+                "has_cup": True,
+                "cta": "Steep One",
+                "cta_style": "pill_right",
+                "price": False,
+            },
+
+            # 05 — Blocks · Trifecta · 3-zone graphic, the timed system
+            {
+                "file": "05_three_firsts.png",
+                "product_type": "tea",
+                "sku": "trifecta",
+                "format": "blocks",
+                "archetype": "color_block",
+                "style": "benefit_highlights",
+                "hook": "One tea timed to your whole day.",
+                "headline": "One tea. All day.",
+                "subhead": "Three mushrooms, timed to your day. New from Alcami.",
+                "emphasis": {"All day": "gold"},
+                "items": [
+                    {"label": "7 AM", "note": "Cordyceps, for the climb"},
+                    {"label": "1 PM", "note": "Lion's Mane, for the focus"},
+                    {"label": "9 PM", "note": "Reishi, for the landing"},
+                ],
+                "color_world": "three bold vertical color zones — warm gold, sage green, deep navy, left to right — clean graphic blocks, high contrast, confident, not a photo",
+                "cta": "Get the Trifecta",
+                "cta_style": "button",
+                "price": False,
+            },
+
+            # 06 — Morning · hands and cup at a bright window (human, full context)
+            {
+                "file": "06_morning_feels_yours.png",
+                "product_type": "tea",
+                "sku": "morning",
+                "format": "scene",
+                "archetype": "editorial",
+                "hook": "We worked hard to get this morning tea right.",
+                "headline": "We worked hard on this one.",
+                "subhead": "Your new morning tea. Caffeine-free.",
+                "emphasis": {"worked hard": "gold"},
+                "color_world": "bright airy window light, soft and slightly overexposed at the edges, pale linen and warm natural skin tones, a calm sunlit kitchen",
+                "camera": "natural medium shot, both hands and the cup in focus, the person softly present in frame",
+                "scene": "A person in a sunlit kitchen by a bright window, both hands wrapped around a warm cup, the amber-gold Morning tube on the sill beside them. Relaxed and unhurried, the person clearly present in full — never a floating hand.",
+                "visual_action": "A human morning moment, not a product shot — the cup held, the light, the calm; the tube simply belongs on the sill.",
+                "has_cup": True,
+                "cta": "Shop Mornings",
+                "cta_style": "none",
+                "price": False,
+            },
+
+            # 07 — Night · extreme macro of the engraving, moody craft
+            {
+                "file": "07_macro_night_craft.png",
+                "product_type": "tea",
+                "sku": "night",
+                "format": "scene",
+                "archetype": "editorial",
+                "hook": "We obsessed over every detail of the night tea.",
+                "headline": "We obsessed over this one.",
+                "subhead": "Our new night tea. Reishi for 9pm.",
+                "emphasis": {"obsessed": "gold"},
+                "color_world": "deep navy-and-gold near-darkness, a thin dramatic raking light catching fine embossed detail, jewel-like, almost black",
+                "camera": "extreme macro, raking light across the embossed mushroom engraving, ultra-shallow focus",
+                "scene": "An extreme macro of the navy Night tube's surface: the gold mushroom engraving and ALCAMI wordmark catching a thin raking light, fine texture, the rest falling into deep shadow. Not the full canister, just the crafted detail.",
+                "visual_action": "Pure craft and detail — the engraving filling the frame — a completely different way to show the product.",
+                "has_cup": False,
+                "cta": "Meet the Night",
+                "cta_style": "text_link",
+                "price": False,
+            },
+
+            # 08 — Two-product · blend + Trifecta · DARK dramatic shelf (color_world breaks the cream look)
+            {
+                "file": "08_first_blend_then_tea.png",
+                "product_type": "tea",
+                "sku": "trifecta",
+                "format": "scene",
+                "archetype": "editorial",
+                "hook": "It's the Alcami you trust, now as a tea.",
+                "headline": "It's Alcami. Now in tea.",
+                "subhead": "The blend you love, plus something new.",
+                "emphasis": {"Now in tea": "gold"},
+                "color_world": "a dark dramatic shelf — deep charcoal and shadow with one warm side light grazing both products, rich and premium, deliberately NOT a bright cream flat-lay",
+                "camera": "low side-lit product shot, dramatic chiaroscuro, both products lit from one side out of the dark",
+                "scene": "A dark walnut shelf in near-shadow. The cream Original blend pouch and the gradient Trifecta tea tube stand side by side, both catching a single warm side light against deep darkness, clear space between them.",
+                "visual_action": "Two products from one family lit dramatically out of the dark — recognition with weight, not a bright catalog shot.",
+                "has_cup": False,
+                "cta": "Meet the Tea",
+                "cta_style": "integrated",
+                "price": False,
+                "extra_refs": [{"orig": "assets/brand/product_images_blend/original frontBIL2 .png"}],
+            },
+
+            # 09 — Afternoon · candid cafe, off-center, real-life
+            {
+                "file": "09_coffee_break_reinvented.png",
+                "product_type": "tea",
+                "sku": "afternoon",
+                "format": "scene",
+                "archetype": "editorial",
+                "hook": "Try the new afternoon tea at 3pm.",
+                "headline": "Try it at 3pm.",
+                "subhead": "Our new afternoon tea. Clean focus, no crash.",
+                "emphasis": {"Try it": "gold"},
+                "color_world": "warm candid cafe daylight, soft bokeh background, lived-in and real, afternoon sun through a window",
+                "camera": "candid off-center medium shot, product to one side, shallow cafe bokeh behind",
+                "scene": "A candid cafe tabletop in afternoon light: the sage-green Afternoon tube and a cup set off to one side of the frame, a blurred cafe interior behind, a notebook and phone just in view — a real break, not a styled set.",
+                "visual_action": "An off-center, candid, real-life cafe moment — the tea as the coffee-break replacement, not a centered hero.",
+                "has_cup": True,
+                "cta": "Try the Afternoon",
+                "cta_style": "pill",
+                "price": False,
+            },
+
+            # 10 — Trifecta · saturated jewel-toned hero (color_world breaks the cream look)
+            {
+                "file": "10_whole_day_in_one_tube.png",
+                "product_type": "tea",
+                "sku": "trifecta",
+                "format": "scene",
+                "archetype": "color_block",
+                "hook": "We made this tea for you.",
+                "headline": "We made this for you.",
+                "subhead": "The new Alcami tea. Just try it.",
+                "emphasis": {"for you": "gold"},
+                "color_world": "a deep saturated jewel-toned backdrop — rich plum and emerald with a gold rim light, dramatic, high-gloss and editorial, deliberately NOT cream",
+                "camera": "bold straight-on hero, dramatic gold rim lighting, product large and centered",
+                "scene": "A dramatic hero against a saturated jewel-toned backdrop: the full gradient Trifecta tube, entirely in frame and never cropped, lit with a gold rim light, glossy and bold, an occasion.",
+                "visual_action": "Maximum drama on a rich saturated ground — the opposite of a soft cream flat-lay — the tube as a jewel.",
+                "has_cup": False,
+                "cta": "Shop the Tea",
+                "cta_style": "button",
+                "price": False,
+            },
+
+        ],
+    },
+
 }

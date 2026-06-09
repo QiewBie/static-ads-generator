@@ -308,7 +308,7 @@ Any human element must be visibly attached to a person in full context. Isolated
 
 ## Competitors
 
-Competitor ad intelligence comes from the **Scrape Creators API** (pull live ads) and saved analyses in `research/` — there is no local competitor-image library. Pull fresh via Scrape Creators using the keywords below. All brands listed are confirmed running Meta (Facebook/Instagram) ads.
+Competitor ad **intelligence** comes from the **Scrape Creators API** (pull live ads) and saved analyses in `research/`. For comparison **creative**, a small set of competitor product assets lives in `assets/competitors_assets/` (currently **AG1** and **IM8** — pouch + logo). Pull fresh ad intel via Scrape Creators using the keywords below. All brands listed are confirmed running Meta (Facebook/Instagram) ads.
 
 ### Direct category competitors (mushroom coffee / adaptogen latte)
 
@@ -341,6 +341,18 @@ Competitor ad intelligence comes from the **Scrape Creators API** (pull live ads
 - `Bloom Nutrition`
 - `Onnit Alpha Brain`
 - `Thesis nootropics`
+
+### Comparison ads that name a rival
+
+A direct comparison that names a rival brand is allowed and has performed well. The obligations:
+
+- **Brands, never people.** Name the rival *product* (AG1, IM8, RYZE…); never a celebrity, athlete, or influencer — not by name, not by implication.
+- **Show the rival by form factor + name in text, not by logo.** Use the competitor's pouch/can *shape* and put the brand name in type. Never lean on a pixel-accurate logo: the model distorts marks, and a mangled competitor logo is worse (and legally riskier) than none. The `assets/competitors_assets/` files are reference for *form*, not a logo to reproduce exactly.
+- **Claims must be true, parallel, and substantiated.** Every row is apples-to-apples (same dimension on both sides), and each competitor claim is factually defensible — comparative advertising lives or dies on accuracy.
+- **Alcami is always the resolution.** The rival is the contrast (muted, secondary); our product is the answer, full-contrast.
+- **Creativity, not a template.** A competitor comparison is *not* locked to the two-column `comparison` layout. Treat the rival as a creative parameter that can anchor a `scene` (both products in a real moment), a `poster` (a bold named contrast), a `before/after`, or the classic two-column — chosen by the hook, with the usual concept divergence across a batch. Same philosophy as every other ad.
+
+The validator warns whenever a rival brand appears in rendered text, as a reminder of these obligations.
 
 ---
 
@@ -380,6 +392,9 @@ assets/brand/
 │                                  way of thinking, not phrases to lift — see skill)
 └── alcami guidelines (1).pdf  ← Brand guidelines (fonts, colors, logo rules)
 ```
+
+**Competitor assets** live separately in `assets/competitors_assets/` (NOT under `brand/`):
+`ag1_pouch.png` · `ag1_logo.png` · `im8_pouch.png` · `im8_logo.png` (logos are PNG — the source SVGs don't load through the ref pipeline). Use these only for comparison creative, and show a rival by its **pouch / form factor + brand name in text** — never a pixel-accurate logo reproduction (the model distorts marks, which is worse than none). See **Competitors** for the full stance.
 
 **Brand accessories visible in campaign_images/:**
 - Alcami branded ceramic travel tumbler (cream/white)

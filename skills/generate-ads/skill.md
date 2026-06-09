@@ -24,13 +24,37 @@ gen.py                              ← calls Gemini → ad-workspace/[RUN_ID]/
 
 ## Workflow
 
-1. **Research** (if needed) — Tavily for product/audience, Scrape Creators for competitor ads. Never WebFetch/WebSearch.
+1. **Research** (if needed) — pick the right tool (table below). Never WebFetch/WebSearch.
 2. **Diverge** — before writing any spec, sketch 2–3 genuinely different concepts per ad slot and pick the strongest. Never commit the first safe idea. See "Concept divergence" below.
 3. **Write specs** — each ad is one dict in a campaign. Start from `batches/_template.py`.
 4. **Dry run** — `python3 gen.py batches/<file>.py --campaign <name> --dry-run`. The validator prints errors (block generation) and warnings (fix if real).
 5. **Review** the assembled prompts.
 6. **Generate** — drop `--dry-run` (`--force` overwrites; `--only NN` re-runs one ad).
 7. **Deliverables** — images land in `ad-workspace/[RUN_ID]/`.
+
+## Research tooling — which tool for which task
+
+Three APIs in `.env`. Match the task to the tool; never WebFetch/WebSearch. Scrape Creators is **metered (credits)** — spend it only on what *only it* can do (real artifacts), and let Tavily (cheap, synthesized) carry everything factual.
+
+| Task | Tool | Why |
+|---|---|---|
+| What a rival is **actually running** — live ad copy, headlines, CTAs, offers, which faces, active-ad counts | **Scrape Creators** → `GET /v1/facebook/adLibrary/search/companies?query=` (get `page_id`) then `/v1/facebook/adLibrary/company/ads?pageId=&country=US&trim=true` | Pulls the real Meta Ad Library creative; nothing else can |
+| Real creator / UGC reference — how people actually shoot & caption (for `ugc` cuts) | **Scrape Creators** (IG/TikTok/YouTube profiles, posts, transcripts, comments) | Real social artifacts, not descriptions |
+| Pricing, certifications, ingredients, specs | **Tavily** | Verifiable facts, synthesized answer + sources |
+| Audience pain points, sentiment, reviews, "is X taste/claim true" | **Tavily** | Web sentiment + fact-check, no credits burned |
+| Category trends, positioning gaps, news | **Tavily** | Broad web with `include_answer` |
+| "What can tool/brand X do" capability research | **Tavily** | Broad web synthesis |
+| Generate the ad image | **Gemini** via `gen.py` | The render step |
+| Spec → prompt assembly, claim guards, validation, divergence | **local pipeline** (`prompt_builder.py` / `gen.py --policy`) | No API needed — don't research what the engine already owns |
+
+**Efficiency rule:** if Tavily can answer it (a price, a fact, a sentiment), use Tavily. Reserve Scrape Creators for the *actual creative/artifacts*. Read keys from `.env`; save competitor analyses to `research/`.
+
+**Calling conventions:**
+- **These APIs are called with `curl`, not Python `urllib`.** `curl` uses the system cert store; Python's `urllib` raises `CERTIFICATE_VERIFY_FAILED` here. Read keys from `.env`, then `curl -s -H "x-api-key: $KEY" …` (Scrape Creators) and `curl -s -X POST -d '{…}'` (Tavily).
+- **Scrape Creators company search matches broadly** — `search/companies?query=AG1` also returns people/shows with "AG". Query the **full brand name** ("Athletic Greens", "IM8 Health") and pick by `category` + `likes` for the right `page_id`.
+- **Ads come from `/company/ads`** (with `pageId`); `/adLibrary/ads` is not a valid path.
+- **Credits are metered.** Each Scrape Creators response carries `credits_remaining`; an exhausted key returns HTTP 402. Top up the key in `.env` when that happens.
+- **Tavily's synthesized `answer` is sometimes content-filtered/blank** — read the `results[]` array, don't depend on `answer`.
 
 ## The Spec
 
@@ -78,6 +102,8 @@ Design archetypes (the graphic layer): `editorial` · `spec_card` · `annotated`
 - `screenshot` — a native IG/FB comment, review card, or text exchange; cold-traffic authenticity.
 - `before_after` — two honest states; the change is the whole point.
 - `stamp` (a field, not an archetype) — a bold corner stamp like `"RESTOCK"` / `"NEW"` / `"BESTSELLER"`. Opt-in, and use ONLY for a literally true state — never manufacture scarcity (the validator warns).
+
+**Naming a rival in creative:** allowed for *brands* (never people). Show the competitor by pouch/form factor + brand name in text, never a distorted logo; keep every comparative claim true, parallel, and substantiated; and treat the rival as a creative *parameter* — it can anchor a `scene`, `poster`, or `before_after`, not just the two-column `comparison`. Full stance + the `assets/competitors_assets/` files (AG1, IM8): **CLAUDE.md → Competitors**. The validator warns whenever a rival is named.
 
 ## Photographic variety (you don't need to set this, but you can)
 
@@ -128,7 +154,7 @@ The chosen `scene`/`visual_action` (or `visual`/`sides`) should *enact* the argu
 - Price is corroboration, not the hook — default `price: False`. Set `True` only when price is part of the ad's idea (a value/comparison concept); being structured or a comparison does NOT by itself earn it.
 - Product is ≥35% of image height, always the resolution of the concept.
 
-## Tea creative gotchas
+## Tea creative claim-guards
 
 Tea carries hard claim-guards: Morning caffeine-free (Cordyceps lift) · Night = parasympathetic, not sedation (never "fall asleep faster") · no mg doses · the Night cup is a natural warm tea, not indigo (`has_cup: True` only when a cup is genuinely in frame; never make cup color the hook) · no specific counts (4.9★ or "thousands") · tea price is $37.40, never $39 · Trifecta is ONE product ("Get the Trifecta", never "try all three"), preserve the gold→sage→lavender gradient.
 
