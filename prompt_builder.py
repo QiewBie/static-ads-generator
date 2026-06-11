@@ -23,11 +23,12 @@ text literally in content (that creates two sources of truth that drift apart).
 
 import hashlib
 import os
+import re
 
 # Repo root — so extra_ref path checks work regardless of caller's cwd.
 _PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
 
-# ── Photographic variety (the FROZEN-look fix) ──────────────────────────────────
+# ── Photographic variety (prevents the same-look batch) ─────────────────────────
 # Each SKU carries a `mood` tag, not a single hardcoded camera/light. The scene
 # builder picks one camera + one lighting from the mood's pool, chosen
 # deterministically by the ad's filename — so a re-run is stable, but two
@@ -227,6 +228,29 @@ BLEND_SKUS = {
     },
 }
 
+# ── Competitors (rival products for comparison creative) ──────────────────────
+# A competitor is a creative PARAMETER, not a format: set `competitor` on any spec
+# and the rival flows in as the CONTRAST — its package FORM + brand NAME in text,
+# the lesser/secondary element — while Alcami stays the resolution. The pouch ref is
+# added automatically. Rendered brand names are also caught by the validator
+# (claims must be true/parallel/substantiated; people are never named).
+COMPETITORS = {
+    "ag1": {
+        "name":        "AG1",
+        "ref_key":     "comp_ag1",
+        "ref_path":    "assets/competitors_assets/ag1_pouch.png",
+        "form_factor": "tall white single-serve greens pouch",
+        "contrast":    "cool clinical green-and-white",
+    },
+    "im8": {
+        "name":        "IM8",
+        "ref_key":     "comp_im8",
+        "ref_path":    "assets/competitors_assets/im8_pouch.png",
+        "form_factor": "dark premium stick-pack pouch",
+        "contrast":    "deep burgundy-crimson",
+    },
+}
+
 # ── Hard rules — appended to every prompt ────────────────────────────────────
 # The PRODUCT clause is archetype-aware: for idea-led archetypes (poster, screenshot,
 # ugc) the type/number/moment is the hero and the product need not dominate. Everything
@@ -235,12 +259,12 @@ BLEND_SKUS = {
 _HARD_RULES_TMPL = """
 HARD RULES — apply without exception:
 · DESIGN, don't transcribe: render ONLY the words in the explicit text/copy fields — never field labels, quote marks, art-direction notes, leading marks (· • - *), or this brief's line breaks. Grouping, alignment and spacing are YOUR decisions; items are visual objects (chips, cards, columns), never a document list.
-· NO forbidden text: no dates, deadlines, URLs, domains, or review-count numbers (a star rating like 4.9★ is fine).
+· NO forbidden text: no dates, deadlines, URLs, domains, or review-count numbers (a star rating like 4.9★ is fine). Never render any hex color code (#RRGGBB), color name, opacity/percentage value, or other art-direction note as visible text — these are design instructions, not copy.
 · PUNCTUATION: plain hyphens (-) only, never en/em dashes (– —); no decorative bullet marks.
 · FULL BLEED: fill the 1:1 square to all four edges, sharp square corners — no rounded corners, border, frame, matte, or device/phone mockup.
 · {product_rule}
 · TEXT LEGIBILITY: place text in the frame's clean negative space; only if contrast is genuinely short, add a SOFT gradient scrim sized just to the text and fading to transparent — never a hard opaque box, a full-width band, or anything over the product.
-· CTA: a self-contained tappable button sized to its text with margin from the edges — the single highest-contrast element on the canvas, never a full-width footer stripe.
+· CTA: render it exactly as directed above, sized to its text with clear margin from every edge — never a full-width footer stripe, and never the loudest element (it reads after the headline).
 · NO floating body parts: any human element is visibly attached to a person in full context."""
 
 _PRODUCT_RULE_HERO = ("PRODUCT: the canister/pouch is ≥35% of image height and the resolution of the "
@@ -252,38 +276,68 @@ _PRODUCT_RULE_SUPPORT = ("PRODUCT: the canister/pouch is reproduced ACCURATELY a
     "the hero. Keep the label truthful and legible (a soft shadow if it rests on a surface); never a "
     "garbled or invented label. Text never crops or covers the product.")
 
+# UGC: the product must read as a real person's, IN USE — never a sealed catalog hero
+# (a pristine front-facing sealed pouch is the #1 tell that a "candid" photo is an ad).
+_PRODUCT_RULE_UGC = ("PRODUCT: the pouch/canister is RECOGNIZABLE — the ALCAMI wordmark and SKU color "
+    "legible enough to identify the brand — but it lives in the moment, not posed: opened, held, "
+    "mid-pour, beside the mug it just made, caught at a casual angle or partly out of frame, and fine "
+    "if slightly soft. NEVER a sealed, pristine, perfectly face-front pouch staged like a product shot "
+    "— that instantly reads as an ad. If a finished drink is in frame, the product reads as having just "
+    "made it (opened, a scoop or frother nearby), never sealed and untouched. Keep the label truthful, "
+    "never garbled or invented.")
+
 # Archetypes where the IDEA, not the product's size, is the hero.
 _PRODUCT_SUPPORT_ARCHETYPES = {"poster", "screenshot", "ugc_minimal"}
 
 
 def _hard_rules(ad: dict) -> str:
-    """HARD_RULES with an archetype-appropriate product clause."""
-    rule = (_PRODUCT_RULE_SUPPORT if ad.get("archetype") in _PRODUCT_SUPPORT_ARCHETYPES
-            else _PRODUCT_RULE_HERO)
+    """HARD_RULES with a product clause matched to format/archetype."""
+    if ad.get("format") == "ugc":
+        rule = _PRODUCT_RULE_UGC
+    elif ad.get("archetype") in _PRODUCT_SUPPORT_ARCHETYPES:
+        rule = _PRODUCT_RULE_SUPPORT
+    else:
+        rule = _PRODUCT_RULE_HERO
     return _HARD_RULES_TMPL.format(product_rule=rule)
 
 
-# Back-compat: the hero variant as a plain constant for any external reference.
-HARD_RULES = _HARD_RULES_TMPL.format(product_rule=_PRODUCT_RULE_HERO)
-
 # ── CTA style guide ───────────────────────────────────────────────────────────
-# The cta_style field in the spec. Builder maps these to prompt instructions.
-# EVERY style is a self-contained, tappable BUTTON — sized to its text, with clear
-# margin from all edges. NEVER a full-width edge-to-edge band/stripe (that cuts the
-# composition and reads as a flat footer, not an action).
+# The cta_style field in the spec. Builder maps each to its prompt instruction.
+# The CTA treatment is a creative choice that matches the ad's register, not a fixed
+# pill on every ad: loud direct-response layouts (color_block, comparison, social_proof,
+# badge) earn a solid button; editorial / poster / atmospheric scenes want a quieter
+# treatment (ghost, text-link, arrow, integrated) or none at all. A Meta feed ad already
+# renders the platform's own action button directly below the creative — so the in-image
+# CTA complements that button (a directional cue, a quiet mark) rather than cloning it.
+# Each style carries its own form, fill/texture, color and reading order. The CTA reads
+# AFTER the headline and subhead — it is never the loudest element, and never a
+# full-width edge-to-edge band (a band reads as a flat footer, not an action).
 
 CTA_STYLES = {
-    "button":       "a prominent self-contained rounded-rectangle button, centered low in the frame with clear margin from every edge, sized to its text (NOT full-width), bold text and a soft drop shadow giving it lift — the obvious tap target",
-    "button_right": "a self-contained rounded-rectangle button anchored bottom-right with clear margin from the edges, sized to its text, bold text and a soft drop shadow — quiet, off-center, still unmistakably tappable",
-    "pill":         "a compact rounded pill button, centered low with margin from the bottom edge, bold text and a soft shadow giving it lift — restrained but clearly a button",
-    "pill_right":   "a compact rounded pill button, bottom-right with margin from the edges, bold text and a soft shadow — quiet, off-center, clearly tappable",
-    "text_link":    "an underlined text link with a small trailing arrow, bottom-left, no box — minimal and editorial, but still clearly the action, not a passive caption",
-    "integrated":   "woven into the headline lockup as its closing line, same type family but visibly the action (a color or weight shift sets it apart) — no separate box",
-    "none":         "no visible CTA in the image — the CTA lives in the ad copy text field only",
+    # — Solid buttons — loud, direct-response register —
+    "button":       "a self-contained rounded-rectangle button sized to its text (NOT full-width), low in the frame but clear of the bottom edge. Solid flat fill in the single highest-contrast color against what sits behind it — near-black #282111 on light/warm surfaces, cream #FFFDF5 or brand-gold #867353 on dark. No heavy drop-shadow; contrast alone makes it the action. The smallest of the named text elements — it reads after the headline and subhead",
+    "button_right": "the same self-contained solid button, anchored lower-right with generous margin from the edges — off-center and confident, not demanding. Same color logic (near-black on light, cream or gold on dark), crisp flat fill, reads last",
+    # — Pills — brand-accented, restrained —
+    "pill":         "a compact rounded pill button, centered low and clear of the bottom edge. Brand-gold #867353 fill with near-black bold text — designed into the layout, not bolted on. Reads after the headline",
+    "pill_right":   "a compact brand-gold #867353 pill, lower-right with margin from the edges, near-black bold text — quiet, off-center, clearly tappable",
+    # — Ghost / outline — premium, editorial, doesn't shout —
+    "ghost":        "a hollow 'ghost' button — a thin 1-2px rounded outline with NO fill, the text in the same color as the outline, centered low and clear of the bottom edge. Premium and minimal; it reads as the action through its shape and the breathing room around it, not a loud fill. Outline and text near-black #282111 on light, cream #FFFDF5 on dark",
+    "ghost_right":  "the same hollow outlined ghost button, lower-right with margin from the edges — quiet, editorial, unmistakably tappable",
+    # — Text link — editorial, minimal —
+    "text_link":    "an underlined text-link with a small trailing arrow, lower-left, no box and no fill, in the body type family at a bold weight — minimal and editorial, but clearly the action, not a passive caption",
+    # — Tab — anchored to one edge like a bookmark —
+    "tab":          "a small tab anchored flush to one side edge at mid-to-lower height, like a bookmark or page tab pushing into the frame — solid brand-gold #867353 with near-black bold text. Architectural and distinctive, an action handle, never a full-width band",
+    # — Sticker — hand-placed, tactile, die-cut —
+    "sticker":      "a small die-cut sticker, slightly rotated and hand-placed in the lower third, with a thin sticker border and a soft realistic peel shadow — solid gold #867353 or cream with bold near-black text. Tactile and informal, as if stuck onto the image",
+    # — Arrow-down — a directional cue toward the platform's own button below the ad —
+    "arrow_down":   "the action words in clean bold type, low-center and clear of the bottom edge, with a single minimalist downward chevron — just the open arrowhead silhouette, no enclosing box and no stem line — sitting beneath the text. It gestures down toward the platform's own action button that sits directly below the creative, making the in-image cue and the real button read as one gesture. Text and arrow in the highest-contrast color (near-black #282111 on light, cream #FFFDF5 on dark)",
+    # — Integrated — part of the headline lockup —
+    "integrated":   "woven into the headline lockup as its closing line — same type family, set apart as the action by a brand-gold #867353 color shift or a bold weight contrast. No separate box",
+    # — None — let the platform button carry the click —
+    "none":         "no visible CTA inside the image — the action lives in the ad copy and the platform's own action button below the creative. Keep the lower third clean so that button has room to breathe",
 }
-# Aliases for older spec names — each resolves to a contained button. CTA styles
-# are always self-contained buttons, never a full-width band (a band reads as a
-# flat footer, not an action).
+# Aliases for older spec names — each resolves to its contained equivalent. A CTA is
+# never a full-width band (a band reads as a flat footer, not an action).
 CTA_STYLES.update({
     "band_bottom":       CTA_STYLES["button"],
     "pill_bottom":       CTA_STYLES["pill"],
@@ -330,15 +384,15 @@ BLOCK_STYLES = {
 
 DESIGN_ARCHETYPES = {
     "editorial":    "Editorial/magazine: one large refined headline, generous negative space, one short supporting line. No rules, borders, or divider lines. Almost no UI. Premium, considered, restrained.",
-    "spec_card":    "Spec/data card: clean grid, small line-icons, numeric callouts (4.9 stars, ingredient counts — for tea, NO mg doses), confident grotesque type. Transparent, scientific, uncluttered.",
+    "spec_card":    "Spec/data card: clean grid, small line-icons, confident grotesque type. Transparent, scientific, uncluttered. Any number shown comes ONLY from the copy fields provided (a 4.9 star rating, a stated ingredient count) — NEVER invent mg doses, percentages, a supplement-facts/nutrition panel, or any callout beside the product that wasn't given in the copy.",
     "annotated":    "Annotated product: thin call-out lines from the product to 3-4 short labels, like a refined diagram. Carries 'what's inside' with NO bulleted list.",
     "color_block":  "Color-blocked: 2-3 solid color zones dividing the canvas; type lives inside each zone. Bold, modern, confident — never busy.",
     "badge":        "Badge/seal accents: circular seals (USDA, NSF, 90-day) used sparingly as trust marks, never a wall of logos.",
-    "ugc_minimal":  "Near-zero design: phone-shot frame, optional plain caption. No panels, no chips, no art direction. Cold-traffic authenticity.",
+    "ugc_minimal":  "Near-zero design: a real customer's phone-shot frame, the product in use (never a posed sealed pouch), optional native Stories/TikTok caption. No panels, no chips, no studio lighting, no bokeh or vignette. Cold-traffic authenticity.",
     "testimonial":  "Customer voice is the hero — a real quote set large, simple attribution. The product supports the voice.",
     "social_proof": "Proof is the hero — rating, count, or outcome stat dominates as a designed element, not a cluttered wall.",
     "poster":       "Poster / typographic: a single oversized numeral, word, or short statement IS the composition, filling most of the frame. Maximum type, minimal everything else. Loud, declarative, impossible to scroll past. The product sits smaller but still present.",
-    "screenshot":   "Native social proof: rendered to look like a real captured screenshot — an Instagram/Facebook comment thread, a review card with stars, or a text-message exchange. The words feel screenshotted, not designed. Cold-traffic authenticity, but legible and on-brand (no fake usernames of real people).",
+    "screenshot":   "Native screenshot: the captured UI FILLS THE FRAME, as if a real screenshot were the whole creative — an Instagram/Facebook comment, a review card with stars, or an iMessage thread, rendered as raw on-screen UI (system fonts, real chat bubbles, a generic silhouette avatar). It is NOT a photo of a phone held in a hand, and NOT a phone propped in a styled room beside the product — the screen IS the entire image. The product appears only as a small attached photo/thumbnail inside the UI, or not at all. Legible system text, on-brand, no fake usernames of real people.",
     "before_after": "Before / after transformation: one subject in two honest states — the old way vs. the Alcami way, or day 1 vs. day 30. A clear divide or diptych; the change is the entire point. Never exaggerate the result.",
 }
 
@@ -415,6 +469,9 @@ def get_refs_for_campaign(ads: list) -> dict:
         elif product_type == "blend" and sku_key in BLEND_SKUS:
             sku = BLEND_SKUS[sku_key]
             refs[sku["ref_key"]] = sku["ref_path"]
+        comp = COMPETITORS.get(ad.get("competitor", ""))
+        if comp:
+            refs[comp["ref_key"]] = comp["ref_path"]
         for extra in ad.get("extra_refs", []):
             # extra_refs is a dict: {"key": "path"}
             refs.update(extra)
@@ -432,6 +489,9 @@ def get_ad_refs(ad: dict) -> list:
     else:
         primary = None
     refs = [primary] if primary else []
+    comp = COMPETITORS.get(ad.get("competitor", ""))
+    if comp:
+        refs.append(comp["ref_key"])
     for extra in ad.get("extra_refs", []):
         refs += list(extra.keys())
     return refs
@@ -468,11 +528,11 @@ def _get_cta_line(ad: dict) -> str:
     style_key = ad.get("cta_style", "button")
     style_desc = CTA_STYLES.get(style_key, CTA_STYLES["button"])
     if style_key == "none":
-        return "\nNo visible CTA in the image."
-    return (f'\nCALL TO ACTION — render the button text exactly "{cta_text}" '
+        return "\nCALL TO ACTION: " + CTA_STYLES["none"] + "."
+    return (f'\nCALL TO ACTION — render the call-to-action text exactly "{cta_text}" '
             f'(those words only, never a "CTA" label): {style_desc}. '
-            f'Fill it for maximum contrast against whatever sits behind it (near-black on light/warm, '
-            f'cream or brand-gold #867353 on dark).')
+            f'The platform shows its own action button just below the creative, so this in-image cue '
+            f'complements that button — it never redundantly clones it.')
 
 
 def _stamp_line(ad: dict) -> str:
@@ -485,6 +545,71 @@ def _stamp_line(ad: dict) -> str:
     return (f'\nSTAMP: render the word "{stamp}" as a bold, slightly rotated rubber-stamp or '
             f'sticker badge in a high-energy accent color, tucked in a corner so it never covers '
             f'the product or the headline — an attention spike, not clutter.')
+
+
+def _competitor(ad: dict) -> dict:
+    """Resolve the `competitor` spec field to its COMPETITORS entry (or {})."""
+    return COMPETITORS.get(ad.get("competitor", ""), {})
+
+
+def _competitor_line(ad: dict) -> str:
+    """Bring a rival product in as the CONTRAST — package form + brand name in text,
+    muted/secondary; Alcami stays the resolution. The rival's pouch ref is added
+    automatically (see get_ad_refs). Form-factor + name only — never a distorted logo."""
+    c = _competitor(ad)
+    if not c:
+        return ""
+    return (f'\nCOMPETITOR — {c["name"]} (the CONTRAST, never the hero): also show {c["name"]}\'s '
+            f'product, a {c["form_factor"]}, as the clearly LESSER element — muted, secondary, slightly '
+            f'desaturated, in its {c["contrast"]} world. Reproduce the package FORM/silhouette faithfully '
+            f'from the reference and set the brand name "{c["name"]}" as plain type; do NOT draw a '
+            f'pixel-accurate logo or invent label text on it. The Alcami product stays full-contrast, '
+            f'larger, and is the answer.')
+
+
+def _ref_section(ad: dict, sku: dict) -> str:
+    """The REFERENCE IMAGE intro shared by every format builder — ONE source so the
+    product-prominence wording can never contradict the PRODUCT hard rule. Routing
+    mirrors _hard_rules: ugc → recognizable + in use; poster/screenshot/ugc_minimal →
+    accurate but need-not-dominate; everything else → hero ≥35%. A competitor ref
+    (when set) is image 2; extra_refs follow, numbered after it."""
+    is_tea = ad.get("product_type", "tea") == "tea"
+    kind = "canister" if is_tea else "pouch"
+    if is_tea:
+        detail = (f"the ALCAMI ELEMENTS wordmark, the botanical mushroom engraving, "
+                  f"the {sku['canister_desc']}, and all label text")
+    else:
+        detail = "every label detail, the gradient, and the gold foil typography"
+
+    base = f"REFERENCE IMAGE 1: This is the ACTUAL Alcami Elements {sku['name']} {kind}."
+    if ad.get("format") == "ugc":
+        base += (f" Reproduce it recognizably ({detail}), but show it as a real person's — "
+                 f"opened, held, or mid-pour, casually present in the moment, NOT a sealed "
+                 f"{kind} posed face-front like a product shot.")
+    elif ad.get("archetype") in _PRODUCT_SUPPORT_ARCHETYPES:
+        base += (f" Reproduce it with photographic accuracy — {detail}. It is clearly present "
+                 f"and truthful, but it need NOT dominate the frame: the oversized type, number, "
+                 f"or captured moment is the hero (see the PRODUCT rule below).")
+    else:
+        base += (f" Reproduce it with photographic accuracy — {detail}. "
+                 f"The {kind} must be at least 35% of image height.")
+    if is_tea and sku.get("gradient_note"):
+        base += f"\n{sku['gradient_note']}"
+
+    idx = 2
+    comp = _competitor(ad)
+    if comp:
+        base += (f"\nREFERENCE IMAGE {idx}: {comp['name']}'s product — a {comp['form_factor']}. "
+                 f"A FORM/silhouette reference only; render it per the COMPETITOR direction below.")
+        idx += 1
+    n_extra = sum(len(e) for e in ad.get("extra_refs", []))
+    if n_extra == 1:
+        base += (f"\nREFERENCE IMAGE {idx}: additional reference — use it for context or product "
+                 f"accuracy as described in the scene/visual direction.")
+    elif n_extra > 1:
+        base += (f"\nREFERENCE IMAGES {idx}-{idx + n_extra - 1}: additional references — use them "
+                 f"for context or product accuracy as described in the scene/visual direction.")
+    return base
 
 
 def _pick(options: list, ad: dict, salt: str) -> str:
@@ -507,16 +632,22 @@ def _pick_look(ad: dict, sku: dict) -> tuple:
 
 
 def _get_night_cup_line(ad: dict, sku: dict) -> str:
-    """Note for a brewed Night cup when one is present. Shared by ALL builders.
-    The cup is just a calm, warm cup of herbal tea — we do NOT force an indigo
-    color (no on-site basis, and it was never the point of the product)."""
-    if sku.get("night_cup") and ad.get("has_cup", False):
+    """Note for a brewed cup when one is present. Shared by ALL builders.
+    Tea Night: calm herbal cup, natural amber, never indigo.
+    Blend: warm ceramic latte mug near the pouch, reads as ritual in progress."""
+    if not ad.get("has_cup", False):
+        return ""
+    if sku.get("night_cup"):
         return (
             "\nNIGHT CUP: any brewed cup is a calm, inviting cup of herbal tea in a warm "
             "natural amber tone, gentle steam rising in the lamp light. Keep it natural and "
             "understated — not a bright or artificially colored liquid."
         )
-    return ""
+    # Blend latte scene
+    return (
+        "\nCUP: A warm ceramic mug with the prepared latte — creamy, with a hint of rising steam — "
+        "sits prominently near the pouch. Render it as a real morning ritual in progress, not a decorative prop."
+    )
 
 
 def _fill(text: str, ad: dict) -> str:
@@ -595,7 +726,7 @@ EMPHASIS_TREATMENTS = {
     "italic":    "set in italic",
     "underline": "underlined with a clean rule",
     "strike":    "struck through (line through the word) — reads as negated/old",
-    "gold":      "set in brand gold #867353 as a color accent",
+    "gold":      "set in warm brand gold as a color accent — color only, no other word tinted (never render any hex code or color name as text)",
     "boxed":     "enclosed in its own small high-contrast background chip",
 }
 
@@ -619,16 +750,22 @@ def _chips(ad: dict) -> list:
     return [str(c).strip() for c in chips if str(c).strip()][:3]
 
 
+def _dedupe_chips(chips: list, subhead: str) -> list:
+    """Drop any chip already stated in the subhead — one fact never renders twice.
+    The ONE dedupe used by every text path."""
+    if not subhead:
+        return chips
+    sub_low = subhead.lower()
+    return [c for c in chips if str(c).lower().strip() not in sub_low]
+
+
 def _subhead_emphasis_chips(ad: dict, headline_text: str, *, with_chips: bool) -> str:
     """Shared secondary text layer for builders that render their OWN headline/hook:
     subhead + per-word emphasis (+ optional proof chips). Returns '' if nothing to add.
     Emphasis is matched against headline_text + subhead so it can land on either."""
     subhead = ad.get("subhead", "")
     emph = _emphasis_line((headline_text + " " + subhead), ad.get("emphasis", {}))
-    chips = _chips(ad) if with_chips else []
-    if chips and subhead:
-        sub_low = subhead.lower()
-        chips = [c for c in chips if c.lower() not in sub_low]
+    chips = _dedupe_chips(_chips(ad), subhead) if with_chips else []
     lines = []
     if subhead:
         lines.append(f'  Subhead (supporting line, about half the headline size): "{subhead}"')
@@ -636,8 +773,8 @@ def _subhead_emphasis_chips(ad: dict, headline_text: str, *, with_chips: bool) -
         lines.append(emph)
     if chips:
         cl = "; ".join(f'"{c}"' for c in chips)
-        lines.append(f'  Proof chips: render EXACTLY {len(chips)} small chip(s), words only, '
-                     f'no brackets/quotes/punctuation drawn, no invented chips: {cl}.')
+        lines.append(f'  Render EXACTLY {len(chips)} small proof chip(s), words only, '
+                     f'no brackets/quotes/punctuation drawn, no invented chips, showing ONLY: {cl}.')
     return ("\n" + "\n".join(lines)) if lines else ""
 
 
@@ -679,13 +816,8 @@ def _text_block(ad: dict, sku: dict) -> str:
     content (items/sides/steps) is handled per-format and is separate from this."""
     headline = ad.get("headline") or ad.get("hook", "")
     subhead  = ad.get("subhead", "")
-    stats    = _chips(ad)
+    stats    = _dedupe_chips(_chips(ad), subhead)
     emph     = _emphasis_line(headline + " " + subhead, ad.get("emphasis", {}))
-
-    # Drop any stat already stated in the subhead — avoids duplicate chips.
-    if stats and subhead:
-        sub_low = subhead.lower()
-        stats = [s for s in stats if str(s).lower().strip() not in sub_low]
 
     lines = [
         "TEXT TO RENDER — the ONLY words that appear in the image. Render each quoted string exactly; "
@@ -699,8 +831,8 @@ def _text_block(ad: dict, sku: dict) -> str:
     if stats:
         chip_list = "; ".join(f'"{s}"' for s in stats)
         lines.append(
-            f'  Proof chips: render EXACTLY {len(stats)} small chip(s) in one aligned row, each holding '
-            f'ONLY the words quoted here, with no brackets/quotes/punctuation drawn and no invented chips: {chip_list}.'
+            f'  Render EXACTLY {len(stats)} small proof chip(s) in one aligned row, each holding '
+            f'ONLY the words quoted here, with no brackets/quotes/punctuation drawn and no invented chips, showing ONLY: {chip_list}.'
         )
     # Size/role guidance kept SEPARATE from the quoted words so it can't be transcribed.
     lines.append(
@@ -716,25 +848,6 @@ def _build_scene_prompt(ad: dict, sku: dict) -> str:
     product_type = ad.get("product_type", "tea")
     is_tea = product_type == "tea"
 
-    # Canister/pouch reference instruction
-    if is_tea:
-        ref_line = (
-            f"REFERENCE IMAGE 1: This is the ACTUAL Alcami Elements {sku['name']} canister. "
-            f"Reproduce this exact cylindrical canister with photographic accuracy — "
-            f"the ALCAMI ELEMENTS wordmark, the botanical mushroom engraving centered on the label, "
-            f"the {sku['canister_desc']}, and all label text are essential. "
-            f"The canister must be at least 35% of image height."
-        )
-        if sku.get("gradient_note"):
-            ref_line += f"\n{sku['gradient_note']}"
-    else:
-        ref_line = (
-            f"REFERENCE IMAGE 1: This is the ACTUAL Alcami Elements {sku['name']} pouch. "
-            f"Reproduce this exact packaging with photographic accuracy — "
-            f"every label detail, the gradient, and gold foil typography exactly as shown. "
-            f"The pouch must be at least 35% of image height."
-        )
-
     # Text layer: prefer the structured headline/subhead/stats model; fall back to
     # the legacy single text_in_image line for older atmospheric specs.
     if any(ad.get(k) for k in ("headline", "subhead", "stats", "proof", "emphasis")):
@@ -749,18 +862,13 @@ def _build_scene_prompt(ad: dict, sku: dict) -> str:
     # Night cup (shared helper — fires in every format, not just scene)
     night_cup_line = _get_night_cup_line(ad, sku)
 
-    # Extra refs note
-    extra_note = ""
-    if ad.get("extra_refs"):
-        extra_note = "\nREFERENCE IMAGE 2: Additional reference provided — use for context or product accuracy as described in the scene."
-
     price_line = _get_price_line(ad, sku)
     cta_line = _get_cta_line(ad)
     camera, lighting = _pick_look(ad, sku)
 
     prompt = f"""You are a world-class advertising photographer and art director creating a {sku['opening_tone']} advertisement for Alcami Elements {sku['name']}{" tea" if is_tea else ""}.
 
-{ref_line}{extra_note}
+{_ref_section(ad, sku)}
 
 HOOK (the one idea this ad is built from): {ad['hook']}
 
@@ -774,7 +882,7 @@ CAMERA: {camera}.
 
 LIGHTING: {lighting}.
 
-{_archetype_line(ad)}{text_line}{category_line}{night_cup_line}{_stamp_line(ad)}{price_line}{cta_line}
+{_archetype_line(ad)}{text_line}{category_line}{night_cup_line}{_stamp_line(ad)}{_competitor_line(ad)}{price_line}{cta_line}
 
 {_hard_rules(ad)}
 
@@ -793,21 +901,6 @@ def _build_comparison_prompt(ad: dict, sku: dict) -> str:
     left_points = "\n".join(f"  {_fill(p, ad)}" for p in left.get("points", []))
     right_points = "\n".join(f"  {_fill(p, ad)}" for p in right.get("points", []))
 
-    if is_tea:
-        ref_line = (
-            f"REFERENCE IMAGE 1: This is the ACTUAL Alcami Elements {sku['name']} canister. "
-            f"Reproduce this exact cylindrical canister with photographic accuracy — "
-            f"the ALCAMI ELEMENTS wordmark, the botanical mushroom engraving, "
-            f"the {sku['canister_desc']}, and all label text. At least 35% of image height."
-        )
-        if sku.get("gradient_note"):
-            ref_line += f"\n{sku['gradient_note']}"
-    else:
-        ref_line = (
-            f"REFERENCE IMAGE 1: This is the ACTUAL Alcami Elements {sku['name']} pouch. "
-            f"Reproduce with photographic accuracy. At least 35% of image height."
-        )
-
     visual = ad.get("visual", "clean cream #FFFDF5 background, premium and minimal — the comparison does the work")
     price_line = _get_price_line(ad, sku)
     cta_line = _get_cta_line(ad)
@@ -818,7 +911,7 @@ def _build_comparison_prompt(ad: dict, sku: dict) -> str:
 
     prompt = f"""You are a world-class advertising art director creating a structured comparison advertisement for Alcami Elements {sku['name']}{" tea" if is_tea else ""}.
 
-{ref_line}
+{_ref_section(ad, sku)}
 
 The line "{big}" is the HEADLINE — render it as the largest text on the canvas, with no label or quote marks drawn.{secondary}
 
@@ -834,9 +927,9 @@ RIGHT — "{right.get('label', 'Alcami')}":
 
 The product ({sku['name']}) appears prominently on the RIGHT side — it is the answer, not decoration.
 
-TYPOGRAPHY HIERARCHY (non-negotiable):
-· Headline above the comparison: LARGEST text on canvas, bold condensed, high-contrast — stops the scroll.
-· Column headers ("{left.get('label', 'Before')}" / "{right.get('label', 'Alcami')}"): bold condensed, ~60% of headline size, each in its own panel or defined zone.
+TYPOGRAPHY HIERARCHY (non-negotiable sizes; the type PERSONALITY follows the design archetype and the ad's register — bold and declarative for loud direct-response, an editorial serif for calmer registers):
+· Headline above the comparison: LARGEST text on canvas, high-contrast — stops the scroll.
+· Column headers ("{left.get('label', 'Before')}" / "{right.get('label', 'Alcami')}"): bold, ~60% of headline size, each in its own panel or defined zone.
 · Bullet text: clean regular weight, ~30% of headline size, readable at mobile — never the same weight as headers.
 
 ROW PARALLELISM — CRITICAL:
@@ -853,7 +946,7 @@ DESIGN DEPTH:
 · Each column header sits inside its own defined panel or zone with a contrasting background.
 
 TONE: Confident and factual. Not aggressive. The comparison speaks for itself.
-{category_line}{night_cup_line}{_stamp_line(ad)}{price_line}{cta_line}
+{category_line}{night_cup_line}{_stamp_line(ad)}{_competitor_line(ad)}{price_line}{cta_line}
 
 {_hard_rules(ad)}
 
@@ -868,7 +961,7 @@ _BLOCKS_DESIGN_TAIL = """LAYOUT — you are a designer, not a typewriter: each t
 
 TYPOGRAPHY HIERARCHY:
 · Headline dominates (largest on canvas); item names ~55-65%; notes and proof smallest (~25-30%). Every level visibly distinct.
-· Editorial serif (Didot/Bodoni) for the headline; clean sans-serif for item/proof text."""
+· Headline type personality follows the design archetype (editorial → high-contrast serif like Didot/Bodoni; color_block / spec_card → bold modern sans); clean sans-serif for item/proof text."""
 
 
 def _build_blocks_prompt(ad: dict, sku: dict) -> str:
@@ -879,15 +972,6 @@ def _build_blocks_prompt(ad: dict, sku: dict) -> str:
       · LEGACY    — `blocks` ([{size,content}]): older free-form specs, rendered
         through the SAME scaffolding. Prefer `items` for new work."""
     is_tea = ad.get("product_type", "tea") == "tea"
-    kind = "canister" if is_tea else "pouch"
-    ref_line = (
-        f"REFERENCE IMAGE 1: the ACTUAL Alcami Elements {sku['name']} {kind} — reproduce it with "
-        f"photographic accuracy ({sku['canister_desc']}, ALCAMI ELEMENTS wordmark"
-        f"{', botanical engraving' if is_tea else ', gold foil typography'}). At least 35% of image height."
-    )
-    if is_tea and sku.get("gradient_note"):
-        ref_line += f"\n{sku['gradient_note']}"
-
     color      = ad.get("color_world", f"palette anchored by {sku['color_name']} {sku['color_hex']} — dominant tone, natural materials keep real colors")
     arche_line = _archetype_line(ad)
     price_line = _get_price_line(ad, sku)
@@ -928,13 +1012,13 @@ CONTENT BLOCKS — {len(blocks)} blocks, largest dominates, smaller blocks suppo
 
     prompt = f"""You are an elite advertising art director designing a premium static ad for Alcami Elements {sku['name']}{" tea" if is_tea else ""}.
 
-{ref_line}
+{_ref_section(ad, sku)}
 
 COLOR WORLD: {color}. The palette lives in the light, surfaces and graphic zones — the product keeps its true colors; people (if any) keep natural skin and clothing.
 {arche_line}{style_line}
 {content_section}
 
-{_BLOCKS_DESIGN_TAIL}{category_line}{night_cup_line}{_stamp_line(ad)}{price_line}{cta_line}
+{_BLOCKS_DESIGN_TAIL}{category_line}{night_cup_line}{_stamp_line(ad)}{_competitor_line(ad)}{price_line}{cta_line}
 
 {_hard_rules(ad)}
 
@@ -943,6 +1027,30 @@ The result must look designed by a person with taste — structured, legible, pr
 
 
 # ── UGC format builder ────────────────────────────────────────────────────────
+
+def _ugc_caption_line(text_in_image: str, text_treatment: str, ad: dict) -> str:
+    """Native social-caption grammar for UGC — text a creator types onto their OWN
+    post (Instagram Stories / TikTok), never a designed brand caption or a black
+    letterbox subtitle bar (which is what a 'plain bottom caption' tends to become)."""
+    if not text_in_image:
+        return ""
+    base = (
+        f'\nCAPTION (native social text the creator typed onto their OWN post — NOT a designed graphic): '
+        f'render "{text_in_image}" the way someone adds text in Instagram Stories or TikTok — clean '
+        f'sans-serif, casual, white, with either a soft drop shadow or a short translucent rounded '
+        f'highlight sized just to the words for legibility. Sit it loosely in the frame\'s empty space '
+        f'(upper third or floating mid-frame), slightly off-center or tilted is fine — never centered '
+        f'like a title, never a solid black or white letterbox/footer strip across the bottom edge, never a '
+        f'brand\'s designed caption.'
+    )
+    if text_treatment:
+        base += f" {text_treatment}."
+    tag = ad.get("creator_tag")
+    if tag:
+        base += (f' A small "{tag}" mention sticker may sit nearby, the way a creator tags the brand '
+                 f'— subtle, secondary to the caption.')
+    return base
+
 
 def _build_ugc_prompt(ad: dict, sku: dict) -> str:
     """
@@ -953,28 +1061,13 @@ def _build_ugc_prompt(ad: dict, sku: dict) -> str:
     product_type = ad.get("product_type", "tea")
     is_tea = product_type == "tea"
 
-    if is_tea:
-        ref_line = (
-            f"REFERENCE IMAGE 1: This is the ACTUAL Alcami Elements {sku['name']} canister. "
-            f"Reproduce this exact cylindrical canister accurately — "
-            f"the {sku['canister_desc']}, ALCAMI ELEMENTS wordmark, and botanical engraving. "
-            f"The canister must be clearly identifiable. At least 35% of image height."
-        )
-        if sku.get("gradient_note"):
-            ref_line += f"\n{sku['gradient_note']}"
-    else:
-        ref_line = (
-            f"REFERENCE IMAGE 1: This is the ACTUAL Alcami Elements {sku['name']} pouch. "
-            f"Reproduce accurately — label, gradient, and gold foil typography. At least 35% of image height."
-        )
-
     person = ad.get("person", "A real person — not a model, not a set")
     moment = ad.get("moment", "a natural everyday moment with the product present")
     environment = ad.get("environment", "a real home environment, natural light")
 
     text_in_image = ad.get("text_in_image", "")
-    text_treatment = ad.get("text_treatment", "minimal, bottom of frame, plain text — no designer treatment")
-    text_line = f'\nTEXT IN IMAGE: "{text_in_image}" — {text_treatment}.' if text_in_image else ""
+    text_treatment = ad.get("text_treatment", "")
+    caption_line = _ugc_caption_line(text_in_image, text_treatment, ad)
 
     price_line = _get_price_line(ad, sku)
     cta_line = _get_cta_line(ad)
@@ -982,7 +1075,7 @@ def _build_ugc_prompt(ad: dict, sku: dict) -> str:
 
     prompt = f"""You are creating a UGC-style social media advertisement for Alcami Elements {sku['name']}{" tea" if is_tea else ""}. This is NOT a polished studio ad — it should look and feel like organic content someone would discover in their feed.
 
-{ref_line}
+{_ref_section(ad, sku)}
 
 HOOK: {ad['hook']}
 
@@ -993,23 +1086,25 @@ MOMENT: {moment}
 ENVIRONMENT: {environment}
 
 AESTHETIC — critical parameters for UGC authenticity:
-· Shot on a smartphone — NOT a DSLR or medium format. Slight lens distortion, natural compression.
-· Imperfect framing — slightly off-center, not perfectly composed. Like a real person took it.
-· Natural ambient light only — window light, room light, no studio lighting or fill cards. Ambient light temperature should carry the SKU's color tone ({sku['color_name']}).
-· The product is present and clearly visible but is NOT the hero. The person and their moment are.
-· Color correction: minimal. Natural skin tones, slightly warm or cool depending on the room.
-· No graphic overlays, no designed text boxes, no production elements.
+· Shot on a smartphone, by the person in it — a selfie or a quick one-handed grab, eye-level, slightly off-center. Slight wide-lens distortion and natural compression. NOT a tripod, NOT a posed portrait.
+· BANNED — these are the tells that it's a brand ad, not a real post: shallow depth-of-field / creamy bokeh background blur, vignette / darkened corners, cinematic or moody color grade, rim/spotlight/studio lighting, glossy skin retouching, perfect symmetry. If it looks like a photographer lit and composed it, it has failed.
+· NO APP / PLATFORM UI INSIDE THE FRAME: the creative is ONLY the raw photo plus the creator's typed caption — never draw the host app's own chrome: no feed bar, no "Sponsored" or "Ad" label, no "Shop Now" / "Learn More" / action button, no like/comment/share icons, no profile header or avatar row, no bottom toolbar. The platform renders all of that around the creative; drawing it inside the image turns a real post into a fake ad mockup.
+· EDGE-TO-EDGE PHOTO, NO RESERVED BAND: the phone photo fills the entire 1:1 square to all four edges — never a blank or solid strip/band/letterbox at the top or bottom edge (white OR black), and never empty margin reserved for a caption or button. If a caption sits over the photo, the photo still continues behind it to the edge.
+· Deliberately imperfect capture — fine sensor grain, a touch of softness (not razor-sharp), flat true-to-phone dynamic range (mild highlight clipping near a window, slightly lifted/milky shadows — never crushed cinematic blacks). The image must NOT look AI-clean or render-smooth. That faint lived-in imperfection is exactly what reads as real.
+· Natural ambient light only — window light, room light, no studio lighting or fill cards. Ambient light temperature leans toward the SKU's color tone ({sku['color_name']}), but the room stays a normal home, not a color-graded set.
+· The person and their moment are the hero; the product is simply there, in use. Color correction minimal, natural skin tones.
+· EXPRESSION matches the caption's emotion — if the line is relief or a small laugh, the face genuinely reads relief or amusement, candid and mid-moment, never flat, posed, or quietly annoyed.
 
 ENVIRONMENT RULES (non-negotiable):
 · NO competing brand products visible anywhere in the frame — no food packaging (cereal boxes, condiment bottles, protein tubs), no other supplement brands, no coffee makers from competing brands, no spice racks.
 · Maximum 2–3 objects on any visible surface. The Alcami product, the person, and one supporting element (a mug, a book) are the entire story.
 · "Real" means authentic body language and natural light — NOT clutter. The environment feels like a real home that happens to be intentionally tidy.
 · The person's face must be visible and in context — no backs to camera, no silhouettes that hide identity.
-· Aspirational-real: the kind of apartment you'd want to live in, not a documentary of a messy one.{text_line}{night_cup_line}{_stamp_line(ad)}{price_line}{cta_line}
+· Aspirational-real: the kind of apartment you'd want to live in, not a documentary of a messy one.{caption_line}{night_cup_line}{_stamp_line(ad)}{_competitor_line(ad)}{price_line}{cta_line}
 
 {_hard_rules(ad)}
 
-This should look like it was filmed by a real customer — not a brand. If it looks like an ad, it has failed. If the background is cluttered with other brands' products, it has failed."""
+This should look like a real customer's own post — not a brand's. It fails if: it looks like an ad or a photographer made it · the pouch is sealed and posed face-front like a product shot · there is bokeh, a vignette, or a cinematic grade · the caption is a black letterbox subtitle bar instead of native app text · the background is cluttered with other brands' products · the host app's UI is drawn inside the frame (a Sponsored label, a Shop Now / action button, a feed or comment bar, like/share icons)."""
 
     return prompt
 
@@ -1025,23 +1120,9 @@ def _build_how_it_works_prompt(ad: dict, sku: dict) -> str:
     product_type = ad.get("product_type", "tea")
     is_tea = product_type == "tea"
 
-    if is_tea:
-        ref_line = (
-            f"REFERENCE IMAGE 1: This is the ACTUAL Alcami Elements {sku['name']} canister. "
-            f"Include it prominently in the composition — the {sku['canister_desc']}, "
-            f"ALCAMI ELEMENTS wordmark, botanical engraving. At least 35% of image height."
-        )
-        if sku.get("gradient_note"):
-            ref_line += f"\n{sku['gradient_note']}"
-    else:
-        ref_line = (
-            f"REFERENCE IMAGE 1: This is the ACTUAL Alcami Elements {sku['name']} pouch. "
-            f"Include it prominently in the composition. At least 35% of image height."
-        )
-
     steps = ad.get("steps", [])
     steps_desc = "\n".join(
-        f"  Step {i+1}: {_fill(step['label'], ad)} — {_fill(step.get('detail', ''), ad)}"
+        f"  Step {i+1}: {_fill(step['label'], ad)} | {_fill(step.get('detail', ''), ad)}"
         for i, step in enumerate(steps)
     )
 
@@ -1055,13 +1136,13 @@ def _build_how_it_works_prompt(ad: dict, sku: dict) -> str:
 
     prompt = f"""You are a world-class advertising art director creating an infographic-style mechanism advertisement for Alcami Elements {sku['name']}{" tea" if is_tea else ""}. This ad explains HOW the product works through a clean visual flow.
 
-{ref_line}
+{_ref_section(ad, sku)}
 
 HEADLINE (largest text on canvas, above the steps): {big}{secondary}
 
 COLOR WORLD: {color}
 {_archetype_line(ad)}
-INFOGRAPHIC LAYOUT — {len(steps)} steps in a clear vertical or horizontal flow:
+INFOGRAPHIC LAYOUT — {len(steps)} steps in a clear vertical or horizontal flow. Where a step contains ' | ', the text before it is the bold step label and the text after is its lighter detail — never render the | character itself:
 {steps_desc}
 
 DESIGN DEPTH:
@@ -1076,7 +1157,7 @@ DESIGN DIRECTION — critical for legibility:
 · The product appears at the END of the flow as the answer — the physical conclusion of the steps.
 · Background clean and minimal — the infographic is the visual, no competing imagery. All text crisp, correctly spelled, aligned; if text isn't legible, the ad fails.
 · Clean bold sans-serif for step labels, regular weight for detail, high contrast throughout.
-{category_line}{night_cup_line}{_stamp_line(ad)}{price_line}{cta_line}
+{category_line}{night_cup_line}{_stamp_line(ad)}{_competitor_line(ad)}{price_line}{cta_line}
 
 {_hard_rules(ad)}
 
@@ -1100,6 +1181,14 @@ COMPETITOR_NAMES = (
     "im8", "cymbiotika", "ag1", "athletic greens",
 )
 
+# Prescription drug brands NEVER appear in creative — the class term ("GLP-1") is the
+# only sayable reference, and only as third-person product-fit positioning ("The GLP-1
+# ritual"), never a second-person status assumption ("On GLP-1?"). Hard error on these.
+DRUG_BRAND_NAMES = (
+    "ozempic", "wegovy", "mounjaro", "zepbound", "rybelsus", "saxenda",
+    "semaglutide", "tirzepatide", "liraglutide",
+)
+
 # Fields whose text is actually RENDERED in the creative (vs. art-direction notes
 # like `scene`/`visual_action` that only guide the model and are never drawn).
 def _rendered_texts(ad: dict) -> list:
@@ -1109,10 +1198,16 @@ def _rendered_texts(ad: dict) -> list:
     if ad.get("subhead"):        out.append(("subhead", ad["subhead"]))
     if ad.get("text_in_image"):  out.append(("text_in_image", ad["text_in_image"]))
     if ad.get("stamp"):          out.append(("stamp", ad["stamp"]))
-    for i, st in enumerate(ad.get("stats", [])):
-        out.append((f"stats[{i}]", str(st)))
+    # `proof` and `stats` are rendering aliases (see _chips) — BOTH are rendered text,
+    # so both pass through every claim guard.
+    for fld in ("stats", "proof"):
+        for i, st in enumerate(ad.get(fld) or []):
+            out.append((f"{fld}[{i}]", str(st)))
     for side in ("left", "right"):
-        for p in ad.get("sides", {}).get(side, {}).get("points", []):
+        sd = ad.get("sides", {}).get(side, {})
+        if sd.get("label"):
+            out.append((f"sides.{side}.label", sd["label"]))
+        for p in sd.get("points", []):
             out.append((f"sides.{side}", p))
     for i, it in enumerate(ad.get("items", [])):
         if isinstance(it, dict):
@@ -1146,6 +1241,16 @@ def validate_spec(ad: dict) -> tuple:
     if sku and sku not in valid_skus:
         errors.append(f"{fid}: sku '{sku}' invalid for product_type '{pt}'")
 
+    # Blend creative ships with the ORIGINAL pouch only (the site consolidates to the
+    # single Original flavor) — another pouch is a deliberate exception, never a default.
+    if pt == "blend" and sku in ("matcha", "cacao", "espresso"):
+        warnings.append(f"{fid}: blend ads use the ORIGINAL pouch only (single-flavor site); "
+                        f"sku '{sku}' is off-catalog for creative — keep only if deliberately approved.")
+
+    comp_key = ad.get("competitor")
+    if comp_key and comp_key not in COMPETITORS:
+        errors.append(f"{fid}: competitor '{comp_key}' unknown (use {sorted(COMPETITORS)})")
+
     # ── Format-specific required fields ──
     if fmt == "scene" and not (ad.get("scene") and ad.get("visual_action")):
         errors.append(f"{fid}: scene format needs both 'scene' and 'visual_action'")
@@ -1174,6 +1279,10 @@ def validate_spec(ad: dict) -> tuple:
         for f in ("headline", "subhead", "stats", "proof", "emphasis"):
             if ad.get(f):
                 warnings.append(f"{fid}: '{f}' is set but ugc renders no designed text — it will be ignored. Put copy in 'hook' / 'text_in_image'.")
+        if ad.get("cta_style") not in (None, "none"):
+            warnings.append(f"{fid}: ugc with a visible in-image CTA ('{ad.get('cta_style')}') — a designed "
+                            f"button breaks the real-person's-post illusion. Keep the CTA in the ad copy; "
+                            f"set cta_style 'none'.")
 
     # ── Hook quality ──
     hook = (ad.get("hook") or "").strip()
@@ -1182,6 +1291,15 @@ def validate_spec(ad: dict) -> tuple:
             warnings.append(f"{fid}: hook is very short — may be a fragment: '{hook}'")
         if hook[-1] not in ".?!":
             warnings.append(f"{fid}: hook doesn't end with . ? ! — may be a fragment: '{hook}'")
+
+    # ── Orphan referent: in-image text that hinges on an unnamed "them/they/those" ──
+    # A cold viewer reads the IN-IMAGE words in 1-2s; a bare pronoun ("Not for them.")
+    # has no referent unless the frame or copy names who/what. Name it or show it.
+    in_img = (ad.get("text_in_image") or ad.get("headline") or "").lower()
+    if re.search(r"\b(them|they|those|theirs)\b", in_img):
+        warnings.append(f"{fid}: in-image text leans on a pronoun ('them/they/those') with no named "
+                        f"referent — a cold viewer may not know who it means. Name it (e.g. 'my kids') "
+                        f"or make the referent visible in the frame.")
 
     # ── stamp: opt-in urgency/news device — must reflect a TRUE state ──
     if ad.get("stamp"):
@@ -1212,6 +1330,11 @@ def validate_spec(ad: dict) -> tuple:
                 warnings.append(f"{fid}: emphasis target '{phrase}' appears {count}× — ambiguous which one gets emphasized.")
             if p in stops:
                 warnings.append(f"{fid}: emphasis on stopword '{phrase}' — emphasis is wasted unless it carries meaning.")
+
+    # ── cta_style sanity ──
+    cta_style = ad.get("cta_style")
+    if cta_style and cta_style not in CTA_STYLES:
+        warnings.append(f"{fid}: unknown cta_style '{cta_style}' (use {sorted(k for k in CTA_STYLES)}) — falling back to 'button'")
 
     # ── archetype sanity ──
     arche = ad.get("archetype")
@@ -1246,15 +1369,16 @@ def validate_spec(ad: dict) -> tuple:
     # ── Competitor mentions: naming a rival BRAND is allowed; the obligations are not ──
     # Comparative claims must be TRUE, parallel, and substantiated; a rival is shown by
     # form factor + named in text, never as a distorted logo; people are never named.
+    # Fires on the `competitor` field OR a rival name in rendered text.
+    comp = _competitor(ad)
     rendered_low = " ".join(t for _, t in _rendered_texts(ad)).lower()
-    for brand in COMPETITOR_NAMES:
-        if brand in rendered_low:
-            warnings.append(
-                f"{fid}: names competitor '{brand}' — every comparative claim must be TRUE, parallel, and "
-                f"substantiated (same dimension per row). Show their product by form factor and name them in "
-                f"text; never reproduce a competitor logo at distorting fidelity; never name people. Alcami stays the resolution."
-            )
-            break
+    brand = comp.get("name") if comp else next((b for b in COMPETITOR_NAMES if b in rendered_low), None)
+    if brand:
+        warnings.append(
+            f"{fid}: names competitor '{brand}' — every comparative claim must be TRUE, parallel, and "
+            f"substantiated (same dimension per row). Show their product by form factor and name them in "
+            f"text; never reproduce a competitor logo at distorting fidelity; never name people. Alcami stays the resolution."
+        )
 
     # ── Brand-claim guards on RENDERED text ──
     for where, text in _rendered_texts(ad):
@@ -1270,20 +1394,31 @@ def validate_spec(ad: dict) -> tuple:
                 errors.append(f"{fid} [{where}]: Night = parasympathetic, not sedation — never 'fall asleep faster'")
             if sku == "trifecta" and "try all three" in low:
                 errors.append(f"{fid} [{where}]: Trifecta is ONE product — never 'try all three' (use 'Get the Trifecta')")
-            import re as _re_mg
-            if _re_mg.search(r"\d+\s*mg", low):
+            if re.search(r"\d+\s*mg", low):
                 errors.append(f"{fid} [{where}]: specific mg dose on tea — the site publishes none. Use ingredient name/function, not '250mg'.")
         else:  # blend
             if "$37.40" in text or "37.40" in text:
                 errors.append(f"{fid} [{where}]: '$37.40' is the tea price — blend anchor is 'From $39/month'")
+            if "latte" in low:
+                warnings.append(f"{fid} [{where}]: 'latte' in rendered text — coffee/latte is the reference "
+                                f"experience, never what we sell (an adaptogenic superfood blend). Make sure "
+                                f"the line can't read as a coffee brand.")
         # Universal rendered-text hygiene
         if "—" in text or "–" in text:
             warnings.append(f"{fid} [{where}]: contains en/em dash — house style is hyphen '-': '{text[:50]}…'")
         if "·" in text:
             warnings.append(f"{fid} [{where}]: contains '·' bullet in rendered text — remove for clean copy: '{text[:50]}…'")
-        import re as _re
-        if _re.search(r"\d+\s*(reviews|ratings)", low):
+        if re.search(r"\d+\s*(reviews|ratings)", low):
             warnings.append(f"{fid} [{where}]: review COUNT in image text — use star rating only (4.9★)")
+        for drug in DRUG_BRAND_NAMES:
+            if drug in low:
+                errors.append(f"{fid} [{where}]: names prescription drug '{drug}' — creative references "
+                              f"the class ('GLP-1') only, never a drug brand (Meta prescription-drug "
+                              f"rules + trademark exposure).")
+        if re.search(r"\b(your|you'?re on|are you on)\s+(a\s+)?glp-?1", low):
+            warnings.append(f"{fid} [{where}]: second-person GLP-1 phrasing ('your GLP-1' / 'are you on') "
+                            f"asserts the viewer's medical status — a Meta Personal Attributes violation. "
+                            f"Speak to the product's fit ('The GLP-1 ritual'), never the viewer's status.")
 
     # ── Trifecta gradient reminder (soft) ──
     if pt == "tea" and sku == "trifecta" and fmt in ("blocks", "scene", "how_it_works"):
@@ -1343,19 +1478,31 @@ def build_prompt(ad: dict) -> str:
         scene:         scene, visual_action
         comparison:    sides (dict with left/right labels + points lists)
         blocks:        blocks (list of {size, content} dicts)
-        ugc:           person, moment, environment
+        ugc:           person, moment, environment   (text_in_image renders as a native
+                       Stories/TikTok caption; product shows in use, never a posed sealed
+                       hero; no studio lighting, bokeh, or vignette)
         how_it_works:  steps (list of {label, detail} dicts)
 
     Optional fields (all formats):
         text_in_image   — text to show in the image creative
         text_treatment  — how that text appears ("minimal bottom-left" etc.)
-        has_cup         — True if a brewed cup appears (triggers a natural warm-cup note for night — never indigo)
+        creator_tag     — UGC only: a brand mention sticker (e.g. "@alcamielements") rendered
+                          like a creator tagging the brand — subtle, secondary to the caption
+        has_cup         — True if a brewed cup appears (tea night: natural warm cup, never indigo;
+                          blend: a creamy latte mug beside the pouch as a ritual-in-progress)
         price           — True/False
         price_style     — "pill" / "footnote" / "band" (default: "pill")
         cta             — CTA text (default: "Shop Now")
-        cta_style       — "button" / "button_right" / "pill" / "pill_right" /
-                          "text_link" / "integrated" / "none"  (all render as
-                          self-contained buttons, never a full-width band)
+        cta_style       — the visual treatment; match it to the ad's register, vary it across a batch:
+                          solid    → "button" / "button_right" (loud, direct-response)
+                          pill     → "pill" / "pill_right" (brand-gold, restrained)
+                          ghost    → "ghost" / "ghost_right" (hollow outline, premium/editorial)
+                          editorial→ "text_link" (underlined + arrow), "integrated" (in the lockup)
+                          distinct → "tab" (edge bookmark), "sticker" (rotated die-cut),
+                                     "arrow_down" (text + a bare downward chevron pointing at the
+                                     platform's own action button below the ad)
+                          "none"   → no in-image CTA; the platform button carries the click
+                          (never a full-width band; the CTA reads after the headline)
         extra_refs      — list of {"key": "path"} dicts for additional reference images
         color_world     — palette/world override for scene, blocks, and how_it_works
                           (scene defaults to the SKU's color_scene; set this to break
@@ -1366,6 +1513,9 @@ def build_prompt(ad: dict) -> str:
         associative     — True suppresses the forced category cue (mood-led mode)
         stamp           — opt-in overlay stamp text ("RESTOCK"/"NEW"/"BESTSELLER");
                           use ONLY for a literally true state (validator warns)
+        competitor      — rival key from COMPETITORS ("ag1"/"im8"); brings the rival in
+                          as the CONTRAST (form + name, never a logo), pouch ref auto-added.
+                          Flows through scene/comparison/blocks/how_it_works. Acquisition-only.
 
     Design archetypes (see DESIGN_ARCHETYPES / `gen.py --policy`):
         editorial · spec_card · annotated · color_block · badge · ugc_minimal ·
