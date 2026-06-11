@@ -1,253 +1,188 @@
 ---
 name: ad-copy
-description: Write Meta ad copy (primary text, headlines, descriptions) for Alcami Elements static image creatives
+description: Write Meta ad copy (primary text + headline) for Alcami Elements static creatives — campaign-parameterized, works for any audience and angle without hardcoding
 ---
 
-# Ad Copy Writer — Alcami Elements
+# Ad Copy — Alcami Elements
 
-Write Meta ad copy for static image creatives. Each ad gets:
-- **Primary Text** (above the image) — 1–3 short paragraphs, max 125 chars visible before "See more"
-- **Headline** (below the image) — max 40 chars, punchy
-- **Description** (below headline) — max 30 chars, supporting line
-- **CTA Button** — derived from campaign objective (see CTA mapping below)
+This skill writes the **Ads Manager text fields around the creative** — NOT in-image text (that belongs to the generate-ads pipeline and its validator):
+
+- **Primary Text** — one long-form ad copy (the usual full Meta primary text). First ~125 chars show on mobile before "…See more"; the first line must work standalone. **One copy per output — no short/medium/variant tiers** (see How many copies + Output format).
+- **Headline** — ~40 chars display, below the image. One headline per copy.
+- **CTA button** — derived from the campaign objective (mapping below).
+
+We do **not** write the Description field (~30 chars) — leave it blank.
+
+## How many copies
+
+- **No number specified** → write **one copy per creative** (cover every ad in the batch); each completes its own image.
+- **A number specified** (e.g. "1 copy for this batch", "give me 3") → write exactly that many **batch-angle copies** — each speaks to the campaign's *whole* angle from the header (the hero copy for the set), not tied to a single creative.
+
+Either way: each copy is **one long-form primary text** in the register that fits the angle — never a set of short/medium/long variants of the same copy.
+
+## The three sources — read, never restate
+
+1. **The campaign config** (`batches/blend.py` · `batches/tea.py`) — the campaign you're writing for. Its **header comment is the audience brief**: who they are, what's broken, the register, the compliance rules. Each ad's spec supplies the copy seeds: `hook` (the ad's one sentence — primary text grows from it), `format`, `archetype`, `audience`, `sku`. **Audience knowledge lives there and in CLAUDE.md — never hardcoded in this skill.** A new audience needs zero skill edits: write its campaign header well and this skill consumes it.
+2. **CLAUDE.md** — brand voice and DNA, products, proof points, claim rules, competitive stance, ICP.
+3. **`research/meta-ad-copy-conventions.md`** — live-category evidence (AG1/IM8 primary texts) behind the register/emoji/sectioning rules below. Refresh via Scrape Creators when it goes stale.
 
 ## Process
 
-1. Read `CLAUDE.md` for all brand, product, audience, and proof details
-2. Understand the campaign objective from the provided ad images and/or input message — purchase, lead-gen, giveaway entry, awareness, etc. Do not assume purchase intent by default.
-3. Look at each creative — copy must match the visual angle, mood, and layout. Don't repeat proof points already prominent in the image.
-4. Write copy variations per creative — number and length guided by the campaign objective and what the creative actually needs (see Copy Length below)
-5. Group output by creative filename
-
-## Campaign Objective → CTA Mapping
-
-Derive the CTA from what the ad is actually asking the viewer to do:
-
-| Objective | CTA Button |
-|-----------|------------|
-| Direct purchase | Shop Now |
-| Lead-gen / giveaway entry | Sign Up |
-| Awareness / educational | Learn More |
-| Bundle or limited offer | Get Offer |
-
-Never hardcode "Shop Now" — always read the objective from context first.
-
-## Brand Voice Rules (always follow)
-
-- Warm, premium, aspirational — not casually conversational, not clinical. The tone is a trusted friend who lives this ritual, not a brand shouting benefits.
-- Empowering, not fearmongering — "achieve your highest self" not "fix your broken body"
-- Functional spirituality — ancient ingredients + modern science; ritual + real results
-- Anti-jitter, anti-crash framing where relevant — contrast coffee without being preachy
-- Specific proof over vague claims — for blend: "200,000 customers." For tea: "thousands" is intentional and correct — no specific count exists for tea.
-- Never lead with price — it's corroboration, not the hook
-- Earned trust angle: no celebrity endorsements, no podcast deals — real customers
-- Do not name celebrities or influencers — not by name, not by implication ("the longevity podcaster," "the football star")
-- AG1 and IM8 can be named when running direct comparison ads — competitors are fair game by brand name
-- Ritual identity matters: speak to who the customer is becoming, not just what they're buying
-
-## Copy Frameworks
-
-Choose the framework that fits the image format and campaign objective. Don't rotate mechanically — pick the one that matches what this specific ad is doing.
-
-- **Pain → Ritual Solution**: Name the familiar failure (coffee crash, 3pm slump, 2am wake-ups) → offer the ritual that fixes it. Best for `scene` and `ugc` on cold traffic. Open with the pain, not the product.
-- **Problem / Symptom First**: Lead with a question or observation about the problem: "Waking up tired after 8 hours?" / "3pm hitting you like a wall?" — then position the product as the answer in the body. Good for `scene` cold traffic and `ugc`.
-- **Earned Trust**: Lead with 200,000 real customers or outcome data → make them curious how. Good for `blocks — social_proof` and warm audiences.
-- **Us vs Them**: One specific parameter where Alcami clearly wins — taste, transparency, price, trial evidence. Best matched to `comparison` format. Name competitor brands when appropriate.
-- **Pattern Interrupt**: Say something unexpected about supplements or morning routines that stops the scroll. Works across all formats as the opening line.
-- **Ingredient Credibility**: Ingredients belong in body copy as supporting proof — never as the hook. "9 adaptogens, 10:1 extract, every dose disclosed" works as a trust paragraph after the hook lands, not before. Best for `blocks — ingredient_breakdown`.
-- **Identity Hook**: "The kind of person who…" — speak to the aspiration, not the problem. Works for `scene` lifestyle and retarget.
-- **UGC Voice**: For `ugc` format — write as if you are a real customer, not a brand. First-person, one specific detail, no benefit lists, no clinical language. "I've had it on my nightstand for three weeks and haven't skipped a night." Not: "Experience the benefits of Reishi for improved sleep quality."
-- **Offer + Entry**: For lead-gen and giveaway campaigns — lead with what they get for free, then name the prize. Clear, action-forward: what to do, what they get. No friction.
-
-## Copy by Image Format
-
-The image format determines the copy register, length, and what the copy should add vs. what the image already handles. Never repeat proof points already prominent in the image.
-
-**`scene`** — The image carries the mood. Copy completes the thought the scene opens.
-- Register: first-person, warm, specific. Sounds like someone telling you what happened to them.
-- Length: short or medium. Long copy fights the visual.
-- Don't repeat: the scene, the product name if it's obvious, generic benefits.
-- Do add: the specific outcome the scene implies but doesn't state, or a belief-building detail.
-- Example: image shows an unplugged coffee maker + Alcami pouch → copy: "Three weeks ago I stopped reaching for it. I haven't missed it once."
-
-**`comparison`** — The image makes the argument. Copy extends it with a human voice.
-- Register: direct, factual, confident. Not combative — the comparison speaks for itself.
-- Length: medium. The image already has the data; copy gives it a voice.
-- Don't repeat: the comparison points already in the image.
-- Do add: the emotional implication ("which one would you actually look forward to tomorrow morning?") or the guarantee/trust angle.
-
-**`blocks` — benefit_highlights / social_proof**
-- Register: punchy, declarative. Copy mirrors the energy of the image.
-- Length: short. The image is dense; copy should be light.
-- Do add: a personal framing of the proof ("84% of people reported more energy — I was one of them.") or a CTA hook.
-
-**`blocks` — ingredient_breakdown**
-- Register: curious, educational. Copy answers "why does this work?"
-- Length: medium. A short education is appropriate here.
-- Do add: one sentence connecting the ingredient stack to the human experience ("nine different systems. one morning.").
-
-**`blocks` — testimonial_text**
-- Register: match the voice of the testimonial. Don't write over it.
-- Length: short. The testimonial is the copy. Add only a brief frame or CTA.
-- Do add: attribution context or a question that bridges the testimonial to the reader.
-
-**`ugc`** — The image looks organic. The copy must sound equally organic.
-- Register: first-person, casual, conversational. Not branded. Not clinical. Sounds like a DM.
-- Length: short only. Long copy destroys the UGC illusion.
-- Don't use: formal brand language, benefit lists, medical-adjacent claims.
-- Do add: one specific detail that makes it feel lived ("it's been sitting on my nightstand for three weeks and I haven't skipped a night").
-- No CTA in the image — put the button text in the copy: "Trying this → [link]" or just "Shop link in bio."
-
-**`how_it_works`** — The image explains the mechanism. Copy frames the why.
-- Register: educational but human. Not a textbook. Not a press release.
-- Length: medium. The skeptic wants to understand before they buy.
-- Don't repeat: the step-by-step already in the image.
-- Do add: the human emotional context for why the mechanism matters ("I didn't need a longer ingredients list. I needed to understand why the ones in here actually work.").
+1. **Load the campaign** — header brief + every ad spec. Note the `audience` field and any compliance spine in the header.
+2. **Settle the count** (How many copies, above): one per creative by default, or exactly the number requested as batch-angle copies.
+3. **Know where the click lands** — the campaign's destination (product page, bundle page, lead form). Copy may promise only what that page immediately confirms (see The funnel).
+4. **Look at the source** — per-creative copies complete the actual PNG in `ad-workspace/` (never repeat what's already prominent in it); batch-angle copies answer the campaign header's whole angle.
+5. **Choose the register** (Axis 1) that fits the angle, and write **one long-form primary text** in it + one headline.
+6. **Run the compliance floor** (below) plus every campaign-specific rule from the header.
+7. **Output** grouped by creative filename (per-creative) or numbered (batch-angle), each labeled with its register.
 
 ---
 
-## Copy Length
+## The parameter axes — chosen per ad, never defaulted
 
-Let the format and campaign objective guide length — not a fixed formula:
+### Axis 1 — Register (the voice of the one long copy)
 
-- **`scene` / `ugc`**: Short (under 125 chars) or medium (2–3 sentences). Long copy fights the visual.
-- **`comparison`**: Medium. The image handles the data; copy gives it a human voice.
-- **`blocks`**: Short. Dense image + dense copy = overloaded.
-- **`how_it_works`**: Medium or long. The skeptic needs more room.
-- **Giveaway / lead-gen**: Short and medium only — friction kills conversion.
-- **Cold awareness**: Short only — open the loop, don't close it.
+The output is always one long-form primary text. Register sets its **voice and structure**, not its length — pick the one that fits the angle:
 
-Write long copy only when the format and objective clearly call for it.
+| Register | When | Emoji | Caps | Voice & structure |
+|---|---|---|---|---|
+| **Outcome voice** | ugc/testimonial creatives; audience-locked campaigns; warm specifics | 0–2, only what a real person types | none | First-person, a few sentences: one specific lived outcome, then the why, then the soft close. Reads like a person, not a brand. |
+| **Structured DR** | blocks/comparison creatives; offers, launches, bundles (blend acquisition) | functional bullets (✅ ⚡ 🍄 🌿 ☕) + max one bracket-pair on the hook line | single words only (FREE, NEW) | Hook line above the fold → blank line → 1–3 sentence paragraph → emoji-bullet benefit/offer block → close (+ fine print if a claim carries †). |
+| **Advertorial PAS** | cold structured ads where the mechanism or problem-story is the ad | sparse or none | none | 80–200 words: problem → agitate → resolve, blank-line paragraphs of 1–2 sentences, first line still hooks standalone. |
+| **Editorial restraint** | scene/editorial/poster creatives; tea; premium-trust angles | none | none | The quietest long copy — a tight 2–4 sentences, spare and confident. Long ≠ loud; restraint reads as confidence. Never collapse to a single slogan line. |
 
-## Output Format
+The register varies with the angle — a loud blend-acquisition batch and a quiet tea launch don't get the same voice. When writing one copy per creative, let the register follow each creative's format/archetype.
 
-For each creative, output only the variations appropriate for the image format (see Copy Length above):
+### Axis 2 — Audience temperature (`audience` field)
 
+- **acquisition (cold):** introduce. Assume zero brand knowledge; the first line earns the stranger's next three seconds. Hooks from pain/outcome/curiosity; proof builds trust before any ask.
+- **retarget (warm):** announce and extend. "You know us" grammar; the news is the hook ("We made tea now"). Never re-educate, never lean on authenticity proof — they already trust us.
+
+### Axis 3 — Audience lock (when the campaign names an audience)
+
+Universal rules for ANY locked audience (parents, GLP-1, athletes, whoever comes next) — the specifics ride in the campaign header:
+
+- **Carry the match.** The landing page is generic, so the copy makes the audience visible in the text itself. A cool-but-generic line wastes the targeting.
+- **Name the stakes, not just the label.** Copy says what changes in *their* life ("got me through 5pm with the kids, no third coffee, no crash") — never only an in-group wink or a possessive joke.
+- **Sensitive-audience compliance** (any health-adjacent audience): third-person product-fit only ("the GLP-1 morning", "built for the GLP-1 stomach") — never second-person status ("if you're on…", "your GLP-1"), never a drug or condition brand name, never treatment/outcome-of-medication claims. Meta's personal-attributes policy bites hardest in primary text — when in doubt, describe the product's fit, not the reader's condition.
+
+### Axis 4 — Angle (the framework library)
+
+Pick what this specific ad is doing — tagged by fit:
+
+- **Pain → Ritual Solution** (cold · scene/ugc · quiet or outcome): name the familiar failure, offer the ritual. Open with the pain, not the product.
+- **Problem/Symptom Question** (cold · scene/ugc · quiet): "3pm hitting you like a wall?" — then the answer in the body.
+- **Earned Trust** (cold or warm · blocks/social_proof · structured DR): 200,000 real customers, zero celebrity endorsements — make them curious how.
+- **Us vs Them** (cold · comparison · structured DR): one parameter where Alcami clearly wins; competitor brands nameable (AG1, IM8, RYZE) — people never.
+- **Pattern Interrupt** (any · any · quiet or DR opening line): say the unexpected thing about supplements or mornings.
+- **Ingredient Credibility** (cold · blocks · structured DR/PAS body): ingredients are supporting proof after the hook lands — never the hook.
+- **Identity Hook** (warm or lifestyle scene · quiet): who the customer is becoming, not what they're buying.
+- **UGC Voice** (cold · ugc · outcome): a real customer telling one friend one specific honest thing. No benefit lists, no clinical language.
+- **Offer + Entry** (lead-gen/giveaway · structured DR): what they get, what to do — zero friction.
+- **Launch / Announcement** (warm retarget · quiet or structured DR): the news is the value. Insider framing welcome ("our customers get it first").
+- **Advertorial Mechanism** (cold · blocks/how_it_works/comparison · PAS): the longest register — why the problem exists, why this solves it. The category proves 200-word feed copy converts when the first line hooks.
+
+### Axis 5 — What the creative already does
+
+Copy completes the image; the division of labor depends on the creative:
+
+- **poster / before_after archetypes** — the image already shouts its one statement or tells its story. Copy NEVER restates it; add the human context, the next beat, or the proof.
+- **scene** — the image carries mood; copy states the outcome the scene implies.
+- **comparison** — the image carries the data; copy adds the emotional implication ("which one would you actually look forward to tomorrow?") or the guarantee.
+- **blocks** — the image is dense; copy stays restrained (editorial or a lean structured DR), or goes full PAS for skeptics when the campaign calls for it.
+- **ugc / testimonial** — the image looks organic; copy must sound like the same person. Breaking register breaks the ad.
+- **how_it_works** — the image explains; copy frames why the mechanism matters to a human.
+
+---
+
+## The funnel — every field has ONE job, and the click has a destination
+
+The ad unit is a micro-funnel. A viewer travels: image stops the scroll → first line earns the next three seconds → expanded text builds belief → headline + CTA close → the landing page confirms. Each field does its own step and never repeats another's:
+
+| Field | Funnel job | Failure mode |
+|---|---|---|
+| **First line** (~125 chars) | Hook — works WITH the image to earn the expand or the click. | Restates the image's headline; wastes the only guaranteed-seen line on a brand slogan. |
+| **Expanded body** | Belief — read only by the already-interested. Handle the objection, give the proof, make the offer concrete. Sequence: claim → proof → risk-reversal → action. | Re-hooking people who are already hooked; burying proof above the fold where strangers skim. |
+| **Headline** | The close — it sits beside the CTA button at the decision moment. Crystallize the outcome or offer in ≤40 chars. | Duplicating the first line; being clever instead of clear at the exact point of action. |
+| **CTA button** | Name the action the landing page actually opens with. | "Shop Now" leading to a quiz; "Learn More" leading to a checkout. |
+
+(The Description field is left blank — fold its risk-reversal/proof into the close of the body instead.)
+
+**Message match (the handoff):** the click lands on a page that must immediately confirm what the copy promised — same offer, same price anchor, same claim. Never promise a kit/discount/flavor the page doesn't show. For **audience-locked campaigns the landing page is generic** — the copy carries the audience match (that's Axis 3), but the *product promise* must be one the generic page fulfills. The ad may speak to the GLP-1 morning; it may not imply a GLP-1-specific product page exists.
+
+**Funnel stage sets the ask:** cold copy sells the click and the belief (low-friction close: the guarantee does the heavy lifting); warm copy sells the action now (the news/offer is the close). One copy carries the whole micro-funnel — hook, belief, close — so the long form has room for all three; don't strand the proof or the close.
+
+**Risk-reversal placement:** the 90-day guarantee is the funnel's lubricant — it belongs at the close (end of the body), never as the hook.
+
+## Compliance floor — every copy, every audience
+
+- **Surgically true.** Loud is fine; inflated is not. Every claim survives a literal read. No invented stats, counts, or studies.
+- **Proof numbers:** blend = "200,000+"; tea = "thousands" + 4.9★, never a count. Customer-outcome stats only the ones CLAUDE.md lists.
+- **Coffee is the villain, never the product.** Coffee/latte language frames the problem; "latte" is never what we sell ("my morning latte" reads as a coffee brand — the validator can't see primary text, so this skill enforces it here).
+- **Blend = Original only.** No flavor-variety claims ("four flavors"), no matcha/cacao/espresso copy.
+- **No celebrities or influencers** — by name or implication. Competitor *brands* are fair game in comparison angles.
+- **Price is corroboration, never the hook.** Anchors: blend "From $39/month", tea "From $37.40/month" — only when the ad's idea earns price.
+- **No medical claims** — cure/treat/diagnose/"clinically proven" (NSF certification quoted exactly is fine). FDA-style fine print when a † claim needs it.
+- **No fake scarcity** ("act now", "limited time") unless a real promotion is running.
+- **No full-caps sentences, no emoji spam** — Meta suppresses low-quality text; the evidence shows top spenders never do either.
+- **Banned filler:** "unlock", "unleash", "supercharge", "skyrocket", "game-changer", "revolutionary".
+- **When writing one copy per creative, don't open them all the same way; don't repeat proof already prominent in the image.**
+
+## CTA button mapping
+
+Derive from what the ad asks the viewer to do — never default:
+
+| Objective | CTA |
+|---|---|
+| Direct purchase | Shop Now |
+| Launch / retarget cross-sell | Try the Tea · Be the First |
+| Trifecta / entry product | Get the Trifecta |
+| Lead-gen / giveaway | Sign Up |
+| Awareness / education | Learn More |
+| Bundle / limited offer | Get Offer |
+| Gifting | Give the Ritual |
+
+## Output format
+
+One block per copy — one long-form primary text, one headline, no variants, no description.
+
+Per-creative (default — one per ad):
 ```
-### [filename]  [format: scene / comparison / blocks / ugc / how_it_works]
+### [filename]  [format/archetype · audience · register]
 
-**Primary Text (Short — under 125 chars):**
-[copy]
-
-**Primary Text (Medium — 2–3 sentences):**
-[copy — omit if format calls for short only (ugc, blocks)]
-
-**Primary Text (Long — 3–4 sentences with line breaks):**
-[copy — only if format calls for it (how_it_works, Trifecta discovery, social proof story)]
+**Primary Text:**
+[one long-form copy]
 
 **Headline:** [max 40 chars]
-**Description:** [max 30 chars]
-**CTA:** [derived from campaign objective — never hardcode "Shop Now"]
+**CTA:** [from mapping]
 ```
 
-## Anti-Patterns (never do these)
+Batch-angle (when a number is requested — that many, each covering the whole batch angle):
+```
+### [campaign] — copy [n]  [register]
 
-- Never use: "unlock", "unleash", "supercharge", "skyrocket", "game-changer", "revolutionary"
-- Never use medical claim language: "cure", "treat", "diagnose", "clinically proven" (unless directly quoting NSF certification)
-- Never use excessive woo-woo: "vibrational", "cosmic", "universe" — keep it grounded
-- No emojis unless the image tone strongly calls for it (1–2 max, or none)
-- For `scene` / `comparison` / `blocks` / `how_it_works` — premium brand voice. Not a landing page, not a DM.
-- For `ugc` — deliberately casual and first-person. This is the one format where "sounds like a DM" is correct. Formal brand language breaks the UGC register.
-- Don't start every variation the same way
-- Don't lead with price as the hook
-- Don't name celebrities or influencers anywhere in ad-facing copy
-- Don't repeat proof points already prominent in the image
-- Don't use fake scarcity ("limited time", "act now") unless an actual promotion is running
-- Don't default to Shop Now — read the campaign objective first
+**Primary Text:**
+[one long-form copy speaking to the batch's full angle]
+
+**Headline:** [max 40 chars]
+**CTA:** [from mapping]
+```
 
 ---
 
-## RITUAL TEA LINE — Copy Addendum
+## Product-line voice (stable brand DNA — not an audience hardcode)
 
-This section governs copy for the **Alcami Ritual Tea Line** (Morning / Afternoon / Nighttime / Trifecta). Read the full product details in `tea-product-brief.md`. Rules below override or extend the blend-specific guidance above.
+The two lines speak differently (CLAUDE.md → Brand DNA owns the philosophy):
 
-> **Tea copy fast-start:** `tea-product-brief.md` → section "Key Hooks & Headlines by SKU" is the fastest starting point for writing tea ad copy. The frameworks below tell you how to structure it; the brief tells you what to say.
-
----
-
-### Product facts — see canonical sources (do not restate here)
-
-SKU table, price anchor, status, kit, proof points, caffeine, claim guards (no mg, 4.9★ no count, "thousands" not 200,000+): **CLAUDE.md → Ritual Tea Line** and **tea-product-brief.md**. Those own the facts; this skill owns only the *copywriting craft* below.
-
----
-
-### Tea Copy Frameworks
-
-Mapped to image format for faster framework selection:
-
-**Best for `scene` / `ugc`:**
-- **Circadian Precision**: Name the time + the mushroom + the outcome. "7am. Cordyceps. The slow-rising kind." The specificity IS the hook. Works for any single-SKU ad.
-- **The Brewing Pause**: Lead with the 4-minute ritual as the value. "Four minutes, covered. No phone. The pause is half the point." Unique to tea — no supplement ad sounds like this.
-- **Pain / Symptom First**: "Waking up at 2am again?" / "3pm hitting you like a wall?" Open with the moment, not the product. Strong for cold `scene` traffic.
-
-**Best for `comparison`:**
-- **Not Just Tea**: Contrast against regular tea or sleep aids. "Regular tea: flavored water. No dose. No system. Often microplastic-laced. Alcami Night: Reishi, chamomile, lavender. The nervous system finally gets a proper close."
-- **Replace the Wrong Thing**: For Night — "Replace melatonin and magnesium with something that works with your parasympathetic system, not around it."
-
-**Best for `blocks` / `how_it_works`:**
-- **Rhythm Problem**: "Most people don't have an energy problem. They have a rhythm problem." Then introduce the three-blend system. Best for Trifecta, system-level ads, and `how_it_works` format.
-- **Felt Sleep Outcome**: For Night. Lead with the felt result — "The 2am wake-ups stopped." / "Wake up actually rested." Describe the experience; never invent stats or specific numbers (no "+18% HRV", no day-counts — unverified).
-
-**Best for `ugc`:**
-- **First-Person Discovery**: Write as a real customer who found this and is telling one friend. "I've had the night one on my nightstand for three weeks. My sleep tracker noticed before I did." No brand voice, no benefit lists — just one specific honest thing.
-
-**Best for Trifecta (any format):**
-- **The Trifecta Discovery**: "All three. Three weeks. Let the body decide." Curiosity-driven, experiment-framing. Good for both cold purchase and gifting.
-
-**Best for RETARGET / launch (existing blend customers — the cross-sell):**
-This is a product LAUNCH to people who already love Alcami. Share the news; don't educate or prove. Pair with a two-product (blend + tea) scene where possible.
-- **We Made Tea**: pure announcement. "We made tea now." / "It's here." / "New from Alcami." Warm, excited, no proof needed.
-- **Loved This? Try This**: the cleanest cross-sell. Make it specific, not generic: "Loved your morning blend? Now there's a tea for 3pm." / "You know the blend. Meet the tea." Extends the ritual — never gap-fills ("what your ritual is missing" is banned: it implies the blend is incomplete).
-- **Insider / Early Access**: reward loyalty with first dibs. "Our customers get it first." / "You first." Keep it date-free in the image (no "Pre-Order", no ship dates).
-- **One of the First**: pioneer framing — usable. "One of the first mushroom teas." / "The first tea built for morning, afternoon, and night."
-
----
-
-### CTA Mapping for Tea
-
-| Objective | CTA Button |
-|---|---|
-| Direct purchase | Shop Now |
-| Launch / retarget (existing customers) | Try the Tea · Be the First |
-| Trifecta / entry product | Get the Trifecta |
-| Gifting angle | Give the Ritual |
-| Awareness / circadian education | Learn More |
-
----
-
-### Tea Copy Length Rules
-
-| Format | Length | Notes |
+| | Blend | Tea |
 |---|---|---|
-| `scene` (single SKU) | Short or medium | Precise concept — long copy over-explains |
-| `ugc` | Short only | Casual first-person — one specific thing |
-| `comparison` | Medium | Image handles data; copy gives it voice |
-| `blocks` | Short | Dense image needs light copy |
-| `how_it_works` | Medium | The skeptic needs context for the mechanism |
-| Trifecta (any format) | Medium or long | Discovery narrative needs room to land |
-| Night — sleep proof angle | Medium | HRV / 2am story needs one setup sentence to be credible |
+| Mode | **Declares.** Direct, confident, sometimes confrontational. | **Observes.** Precise, quiet — names what the reader already felt. |
+| Example | "Stop the chaos." / "200,000 people made the switch." | "The morning finally holds." / "One herb won't do three jobs." |
+| Default registers | any; structured DR and PAS welcome on cold | editorial restraint and outcome voice; emoji ≈ none |
 
----
-
-### Tea Tone — What Changes vs Blend
-
-**Blend copy:** Direct, declarative, sometimes confrontational. "Your coffee is missing 9 things." "Unsubscribe from the stack."
-
-**Tea copy:** Precise, observed, quieter. It doesn't shout — it names something the reader already felt but couldn't articulate.
-
-| Blend copy voice | Tea copy voice |
-|---|---|
-| "Stop the chaos." | "The morning finally holds." |
-| "Your stack is a problem." | "One herb won't do three jobs." |
-| "200,000 people made the switch." | "The body chose. Week three." |
-
-Avoid the word "ritual" as a generic filler — in tea copy it has real weight, because the brewing act IS a ritual. Use it precisely: "The closing ritual nobody designs anymore." Not: "Start your wellness ritual today."
-
----
-
-### Tea Anti-Patterns (specific to tea line)
-
-- Do NOT use "everything at once" or the supplement-stack replacement angle — those belong to the blend
-- Do NOT position tea as a replacement for the blend — they are complementary (tea at first light, latte after breakfast)
-- Do NOT use date-based CTAs ("Pre-Order Now", ship dates) in ad images
-- Factual guards (caffeine, sedation, price, social proof, mg, review counts) are enforced by the engine validator and owned by CLAUDE.md / tea-product-brief.md — don't restate; just write within them
+**Tea craft notes** (facts live in CLAUDE.md → Ritual Tea Line + `tea-product-brief.md`; the validator enforces the claim guards):
+- **Circadian precision** is the unique angle: time + mushroom + outcome ("7am. Cordyceps. The slow-rising kind."). The specificity IS the hook.
+- **The brewing pause** ("Four minutes, covered. No phone.") — no supplement ad sounds like this; use it.
+- "Ritual" carries real weight in tea copy because brewing IS one — use it precisely, never as filler.
+- Never "everything at once" / stack-replacement angles (those are the blend's); never tea-replaces-blend (complementary, ever); no Pre-Order dates anywhere.
+- Trifecta is ONE product: "Get the Trifecta," never "try all three."

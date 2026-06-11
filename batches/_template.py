@@ -9,6 +9,8 @@
 #   python3 gen.py batches/<file>.py --campaign NAME --dry-run
 #   python3 gen.py batches/<file>.py --campaign NAME --only 03 07
 #   python3 gen.py batches/<file>.py --campaign NAME --force
+#   python3 gen.py batches/<file>.py --campaign NAME --model pro   ← final winners (default: flash drafts)
+#   python3 gen.py batches/<file>.py --campaign NAME --batch       ← Batch API, 50% price, async
 #   python3 gen.py --policy                               ← formats/archetypes/audience
 #
 # THE TWO AUTHORITIES (don't restate their rules in specs):
@@ -17,14 +19,27 @@
 #   CLAUDE.md          — brand, product facts, voice, ICP.
 #
 # KEY FIELDS
+#   run_id        the campaign's output folder. None lets gen.py name it by position
+#                 ({product}_{audience}_batch{N}) — PIN the folder name here once the
+#                 campaign has generated output, so adding/removing campaigns in the
+#                 file never remaps an existing folder.
 #   file          output filename (zero-padded prefix lets --only target it)
 #   product_type  "blend" or "tea"   → drives price anchor, SKU set, claim guards
 #   sku           blend: original/cacao/matcha/espresso · tea: morning/afternoon/night/trifecta
 #   audience      set on the CAMPAIGN ("acquisition" default | "retarget"); ads inherit it
 #   format        scene · comparison · blocks · ugc · how_it_works
 #   archetype     (optional, recommended) editorial · spec_card · annotated · color_block ·
-#                 badge · ugc_minimal · testimonial · social_proof   (see --policy)
+#                 badge · ugc_minimal · testimonial · social_proof · poster · screenshot ·
+#                 before_after   (see --policy)
 #   hook          ONE complete sentence the ad is built from (outcome, not ingredient)
+#   cta_style     match the treatment to the register; vary it across a batch (4th divergence axis):
+#                 solid   button / button_right        loud, direct-response
+#                 pill    pill / pill_right             brand-gold, restrained
+#                 ghost   ghost / ghost_right           hollow outline, premium/editorial
+#                 line    text_link · integrated        underlined+arrow · woven into the lockup
+#                 distinct tab · sticker · arrow_down   edge bookmark · die-cut · chevron pointing
+#                                                       at the platform button shown below the ad
+#                 none    no in-image CTA               poster/screenshot/ugc; platform button only
 #
 # COPY/LAYOUT-SPLIT (the clean path that stops "looks like a document"):
 #   For blocks, prefer `headline` + `items` + `proof` over the legacy `blocks` list.
@@ -39,7 +54,7 @@ CAMPAIGNS = {
 
     # ══ ACQUISITION example campaign (cold audience) ═════════════════════════════
     "my_campaign": {
-        "run_id": None,
+        "run_id": None,                 # pin to the folder name once this campaign has generated output
         "audience": "acquisition",      # ads inherit this; the validator checks format fit
         "ads": [
 
@@ -115,11 +130,11 @@ CAMPAIGNS = {
                 "format": "ugc",
                 "archetype": "ugc_minimal",
                 "hook": "I swapped my third coffee for this and the jitters stopped.",
-                "person": "A person early-30s, casual, no studio styling",
-                "moment": "in the kitchen mid-morning, holding a latte mug, pouch on the counter",
+                "person": "A person early-30s, casual, no studio styling, face visible mid-moment",
+                "moment": "in the kitchen mid-morning, holding a latte mug, the opened pouch in use beside it",
                 "environment": "real apartment kitchen, natural window light",
-                "text_in_image": "No more 11am crash.",
-                "text_treatment": "plain caption text, bottom",
+                "text_in_image": "No more 11am crash.",   # renders as a native Stories/TikTok caption — leave text_treatment empty
+                "creator_tag": "@alcamielements",          # optional: a subtle brand-mention sticker, like a creator tagging the brand
                 "cta": "Shop Now",
                 "cta_style": "none",
                 "price": False,

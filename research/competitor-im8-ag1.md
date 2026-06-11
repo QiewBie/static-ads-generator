@@ -49,6 +49,8 @@ IM8 has built institutional credibility, not just celebrity awareness:
 - **Color world:** Deep burgundy/crimson on warm cream/peach — premium, warm, approachable
 - **Strategy:** Celebrity + clinician trust → quiz funnel → "replace your supplement shelf" angle
 - Running seasonal bundle/gift offers to increase AOV
+- **Authority escalation:** ads cite **Inter Miami CF's equity stake in Prenetics** (IM8's parent) alongside Beckham's co-founder role — sports-institution credibility, not just a face
+- **"New Formula. New Flavours."** launch running, plus UGC-testimonial cuts ("I stopped wasting money on 16+ supplements")
 
 ### Honest Weaknesses (Verified)
 These are real — confirmed against clinical literature and nutrition labels:
@@ -93,8 +95,9 @@ These are real — confirmed against clinical literature and nutrition labels:
 - Bundle + free gift urgency — "Free 1-year Vitamin D3+K2 + 5 travel packs — Limited Time Only"
 - Simple, clean product shot — green color world
 - Authority/scientific tone: "scientifically proven synergies of vitamins, minerals, bacterial cultures"
-- Endorsement-heavy historically (Huberman, Rogan) — now shifting away from this as audience trust in influencer marketing declines
-- CTA: "START NOW" / "Order Now"
+- **Celebrity-led:** ads run on **Hugh Jackman** as the daily-ritual face ("his morning ritual since 2021"), with clinical-backing on the **AG1 Next Gen** formula ("most supplements aren't backed by science — AG1 Next Gen is")
+- **Retail + range expansion:** in **Target nationwide**, and launching **AGZ**, a night SKU (magnesium + L-theanine + saffron, "without the grogginess of melatonin")
+- CTA: "Shop now" / "Learn more"
 
 ### Honest Weaknesses (Verified)
 These are all documented, not speculation:

@@ -37,6 +37,8 @@ Comes in **4 flavors** (30 daily servings per pouch):
 
 **Packaging:** Premium matte stand-up pouches with gold foil typography. Each pouch reads "ACHIEVE YOUR HIGHEST SELF" at the top and carries the "GUT BALANCE + IMMUNITY" badge. Single-serve sachets also available (box of 30).
 
+**AD CREATIVE USES THE ORIGINAL POUCH ONLY.** The site is consolidating to the single Original flavor, so all blend ads show the Original (cream/gold) pouch — the matcha, cacao, and espresso pouches do not appear in creative, and flavor-variety claims ("four flavors") are off-limits. The validator warns on a non-Original blend SKU.
+
 **Pricing (USD — member/subscription):**
 - 1 pouch/month: **$39** (20% off)
 - 2 pouches/month: **$74** (24% off)
@@ -231,6 +233,9 @@ Every ad begins with one hook: a complete sentence that a cold-audience stranger
 - Cold audience test: would someone who has never heard of Alcami immediately get it?
 - No jargon as the hook: "adaptogenic," "circadian," "bioavailability" support the hook, never open with them
 - If the hook requires prior knowledge of Alcami's positioning to land — rewrite it
+- **Name the referent.** A possessive or contrast hook must make clear who/what it points at — never an orphan pronoun. "Not for them. For me." leaves a cold viewer asking who "them" is; "Not for my kids — for me." answers it. If the line keeps a bare "them/they/this," either name the referent in the copy or make it visible in the frame (the family table, the chaos it's claimed from).
+- **Name the stakes, not just the joke.** A possessive line or a native vibe alone undersells — the in-image copy says what changes in their life (calm where there was chaos, a happier parent, surviving 5pm). "The one thing that's mine" is a setup; "the thing that keeps me afloat" is a reason to buy.
+- **Audience-locked campaigns carry their match in the ad.** When a batch targets a specific audience (parents, the GLP-1 routine), every ad makes that audience visible — in the frame (kids, the context) or named in the copy. The landing page is generic, so a cool-but-generic ad wastes the targeting.
 
 **Hook types that work:**
 - *Outcome*: "My coffee maker has been unplugged for two months." / "The 11am crash stopped."
@@ -259,6 +264,19 @@ After the hook is set, choose the format that makes it land hardest. Each is a g
 **`how_it_works`** — Infographic showing the mechanism. Numbered steps with directional flow. Converts skeptics who need to understand before buying. Gemini renders this well when prompting is specific and structured.
 
 Prompts are assembled automatically by `prompt_builder.py` from a slim spec. Never write raw prompts manually.
+
+### Every creative element is a chosen parameter, never a locked default
+
+Each creative element — CTA treatment, format, archetype, competitor framing, color world, cup, stamp — is a register-matched **parameter with a deliberately varied palette**, chosen to fit the specific ad's hook and register. None is hardcoded to a single output. The CTA is the clearest case: solid button, gold pill, ghost outline, text-link, integrated, tab, sticker, arrow-down, or none — picked because it fits *this* ad, the same way the rival is a creative parameter that can anchor a scene or a poster, not just a two-column comparison.
+
+Two obligations follow:
+- **Variety across a batch is first-class.** If every ad wears the same CTA, format, or treatment, the element was *defaulted*, not chosen — and defaulting is the failure. Treat each element as a divergence axis: at least one ad should break from the batch's safe default.
+- **When building or editing an element in the engine, give it a palette + register guidance + a validator nudge — never one fixed result.** A new option earns its place by being right for a register no existing option serves.
+
+And ground platform/creative decisions in **verified facts about our actual placement** — 1:1 square static, US, Advantage+ — not imported generic best-practice. (Example: the in-image CTA complements Meta's own action button shown *below* a square feed creative; the top/bottom UI-overlay "safe zone" applies to 9:16 Stories/Reels, which we don't run, so it doesn't constrain our frame.) Research the question, confirm it holds for our case, then encode it.
+
+### Coffee is the villain, never the product
+Coffee and latte language may frame the *problem* ("no third coffee," "the 11am crash," an unplugged coffee maker) — but never names what we sell. Copy that hangs on "latte" as the product noun ("the latte's mine," "did you finish my latte") reads like a coffee brand, and we don't sell coffee. The product is an adaptogenic superfood blend; "latte" belongs in the category cue ("Superfood Mushroom Latte"), not in the hook. The validator warns when "latte" appears in rendered text.
 
 ### The core emotion is RELIEF — not aspiration
 Alcami ads work in the present tense. The feeling is "I can stop chasing" — not "imagine how good you could feel." Aspiration puts the burden on the viewer to picture a future state. Relief lands immediately. The supplement stack is exhausting. Alcami is the moment that exhaustion ends.

@@ -15,7 +15,6 @@
 # Retarget = LAUNCH to existing blend customers: "we made tea now" · "loved the
 #   blend? try this" · two-product display · insider access · "one of the first".
 #   Scene-led. Never comparison / ugc / testimonial / social_proof (validator warns).
-# Archived pre-launch campaigns: batches/_archive_tea.py
 # ─────────────────────────────────────────────────────────────────────────────
 
 CAMPAIGNS = {
@@ -26,7 +25,7 @@ CAMPAIGNS = {
     # the pioneer claim. Scene-led only (comparison is off-strategy for retarget).
     # SKU mix skews Trifecta + Night; all four SKUs appear for launch range.
     "launch_v1": {
-        "run_id": None,
+        "run_id": "tea_retarget_batch1",
         "audience": "retarget",
         "ads": [
 
@@ -224,7 +223,7 @@ CAMPAIGNS = {
     # structured comparison + how-it-works ads. Claim guards: morning caffeine-free
     # (cordyceps), night = parasympathetic not sedation, no mg, Trifecta = one tube.
     "acquisition_v1": {
-        "run_id": None,
+        "run_id": "tea_acquisition_batch2",
         "audience": "acquisition",
         "ads": [
 
@@ -446,7 +445,7 @@ CAMPAIGNS = {
     # defensible ("we started this" / "one of the first" / "first built for X") —
     # never "the only" or "world's first".
     "pioneer_v1": {
-        "run_id": None,
+        "run_id": "tea_retarget_batch3",
         "audience": "retarget",
         "ads": [
 

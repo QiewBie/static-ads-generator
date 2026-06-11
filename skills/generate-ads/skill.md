@@ -29,7 +29,7 @@ gen.py                              ← calls Gemini → ad-workspace/[RUN_ID]/
 3. **Write specs** — each ad is one dict in a campaign. Start from `batches/_template.py`.
 4. **Dry run** — `python3 gen.py batches/<file>.py --campaign <name> --dry-run`. The validator prints errors (block generation) and warnings (fix if real).
 5. **Review** the assembled prompts.
-6. **Generate** — drop `--dry-run` (`--force` overwrites; `--only NN` re-runs one ad).
+6. **Generate** — drop `--dry-run` (`--force` overwrites; `--only NN` re-runs one ad). The default model is **flash** (draft tier, ≈3.5x cheaper all-in); regenerate client-picked winners at final quality with `--model pro`. `--batch` runs the job through the Batch API at 50% price (async, minutes-to-hours; `--batch-fetch` collects an interrupted job).
 7. **Deliverables** — images land in `ad-workspace/[RUN_ID]/`.
 
 ## Research tooling — which tool for which task
@@ -75,6 +75,8 @@ Three APIs in `.env`. Match the task to the tool; never WebFetch/WebSearch. Scra
 ## The structured text layer (use this — it carries the MESSAGE, not just a mood)
 
 Every format **except `ugc`** renders this structured text block (`ugc` stays deliberately undesigned — its only text is `hook` + an optional `text_in_image` caption; the validator warns if you set the fields below on a `ugc` ad). Default to giving an ad enough to be understood, not just felt:
+
+**UGC still has to sell.** Super-native with nothing explained = weak: the caption carries an outcome (not just a vibe), the pouch is unmistakably in use with the label readable, and the primary text explains what the product is. When the explanation must live *in the image*, use a phone-look `scene` (editorial archetype, phone camera/lighting overrides) instead of `ugc` — it keeps the casual feel and can carry a designed line.
 
 - `headline` — the message, rendered dominant (largest, reads first). Falls back to `hook` if omitted.
 - `subhead` — the clarifier / category line / second idea (~55% of headline). Add when the viewer needs more than the headline.
@@ -132,6 +134,8 @@ Then pick the concept whose hook→visual handoff is sharpest (see "How the hook
 - **Borrow a reference frame the stranger already owns** — the move is to pin the unknown product to a known thing (a daily habit, a familiar product, a number read instantly) so it lands in under 2s. Use on *most* acquisition hooks, not all — leave room for a pure outcome, a behavior, or provenance.
 - **Pattern-interrupt / humor** earns the read: concede the unexpected thing first, then over-deliver.
 - **Vivid, specific benefits** — a function translated into a felt, concrete moment, never a category word ("calmer even mid-argument," not "less stress").
+- **Name the stakes, not just the joke** — a possessive line or a native vibe alone undersells; the in-image copy says what changes in their life ("keeps me afloat," "happy mom again," "got me through 5pm").
+- **Audience-locked batches carry their match in the ad** — the target (parents, the GLP-1 routine) is visible in the frame or named in the copy; the landing page is generic, so the ad alone carries the match. Coffee is the villain, never the product noun (CLAUDE.md → "Coffee is the villain, never the product").
 
 ## How the hook and visual combine (the handoff)
 
@@ -154,6 +158,17 @@ The chosen `scene`/`visual_action` (or `visual`/`sides`) should *enact* the argu
 - Price is corroboration, not the hook — default `price: False`. Set `True` only when price is part of the ad's idea (a value/comparison concept); being structured or a comparison does NOT by itself earn it.
 - Product is ≥35% of image height, always the resolution of the concept.
 
+## CTA treatment (`cta_style`) — match the register, vary across a batch
+
+The CTA is a **creative choice**, not a default pill on every ad. A Meta square feed ad renders the creative intact, with the platform's own action button shown in the chrome directly *below* the image (the top/bottom UI-overlay only happens on vertical 9:16 Stories/Reels, which we don't run). So the in-image CTA *complements* the platform button below — it never redundantly clones it. Pick the treatment that matches the ad's register, and don't render every ad in a batch with the same one:
+
+- **Loud / direct-response** (`color_block`, `comparison`, `social_proof`, `badge`): `button` / `button_right` (solid, highest-contrast) or `pill` / `pill_right` (brand-gold, restrained).
+- **Editorial / atmospheric** (`editorial` scene, premium): `ghost` / `ghost_right` (hollow outline — A/B-tests neck-and-neck with solid, far more premium), `text_link` (underlined + arrow), or `integrated` (woven into the headline lockup).
+- **Distinctive / native** when the concept earns it: `tab` (a bookmark anchored to an edge), `sticker` (rotated die-cut), `arrow_down` (the action word plus a bare downward chevron that points at the platform's real button — turns the in-image cue and Meta's button into one gesture).
+- **`poster` / `screenshot` / `ugc`**: usually `none` or `integrated` — a floating button breaks a poster's composition and a screenshot's native feel; `ugc` keeps its CTA in the copy only.
+
+The CTA always reads *after* the headline and subhead — never the loudest element — and is never a full-width band (that reads as a flat footer). Treat the CTA as a fourth divergence axis: if every ad in the batch wears the same button, push at least one to a quieter or more distinctive treatment.
+
 ## Tea creative claim-guards
 
 Tea carries hard claim-guards: Morning caffeine-free (Cordyceps lift) · Night = parasympathetic, not sedation (never "fall asleep faster") · no mg doses · the Night cup is a natural warm tea, not indigo (`has_cup: True` only when a cup is genuinely in frame; never make cup color the hook) · no specific counts (4.9★ or "thousands") · tea price is $37.40, never $39 · Trifecta is ONE product ("Get the Trifecta", never "try all three"), preserve the gold→sage→lavender gradient.
@@ -164,8 +179,9 @@ These — and all product facts (prices, social proof, SKU tables, positioning) 
 
 - Unknown `sku` for the product type → hard error (no silent fallback to a wrong SKU).
 - `extra_refs` paths that don't exist on disk → error at dry-run, not mid-generation.
-- Tea/blend claim guards on rendered text (price anchor, social-proof number, caffeine, sedation, "try all three").
-- Emphasis placement, comparison row parity, duplicate files/hooks, audience fit.
+- Tea/blend claim guards on rendered text (price anchor, social-proof number, caffeine, sedation, "try all three") — `proof` and `stats` chips included.
+- Prescription-drug brand names anywhere in rendered text → hard error; the class term ("GLP-1") is the only sayable reference, as third-person product-fit positioning — second-person status phrasing ("your GLP-1", "are you on") draws a Personal-Attributes warning.
+- Emphasis placement, comparison row parity, duplicate files/hooks, audience fit, ugc with a visible in-image CTA (warning), orphan "them/they/those" in in-image text (warning).
 
 ## After generation
 
