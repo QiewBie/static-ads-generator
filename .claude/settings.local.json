@@ -76,7 +76,9 @@
       "Bash(grep -vE '^\\\\s*$')",
       "Bash(make check *)",
       "Bash(python3 gen.py batches/blend.py --campaign gut_relief_v1 --batch)",
-      "Bash(PYTHONPATH=/Users/danilshults/alcami-workspace python3 /private/tmp/claude-501/-Users-danilshults-alcami-workspace/52a34c81-0411-45c3-9798-91df62514729/scratchpad/verify_phase0.py)"
+      "Bash(PYTHONPATH=/Users/danilshults/alcami-workspace python3 /private/tmp/claude-501/-Users-danilshults-alcami-workspace/52a34c81-0411-45c3-9798-91df62514729/scratchpad/verify_phase0.py)",
+      "Bash(python3 evaluate.py batches/blend.py --campaign gut_relief_v1)",
+      "Bash(python3 composite.py --proto --recomposite --grade)"
     ],
     "additionalDirectories": [
       "/private/tmp",

@@ -9,9 +9,9 @@ is the canonical roadmap — goal, status, and remaining work for every phase. S
 
 | Phase | What it does | Status |
 |---|---|---|
-| 0 — Prompt hardening | Fix the shipped defects the failed gut batch exposed | **DONE** |
-| 1 — `art_style` axis | Add the artistic-medium axis (photo / illustrated / graphic / riso) | **DONE** |
-| 2 — Compositing | Paste the real pouch + typeset copy in code, generate background only | **NEXT** |
+| 0 — Prompt hardening | Fix the shipped defects the failed gut batch exposed | **DONE — validated** (rerolled 01/02 pass the grader; the double-print class is gone) |
+| 1 — `art_style` axis | Add the artistic-medium axis (photo / illustrated / graphic / riso) | **DONE** (composited variant proven by the 03 graphic proto; direct-path demo batch still open) |
+| 2 — Compositing | Paste the real pouch + typeset copy in code, generate background only | **PROTOTYPE DONE** (`composite.py`, 3/3 pass the grader) — main-path wiring is NEXT |
 | 3 — Analytics loop | Feed live ad performance back into the next batch's brief | **LATER** |
 
 ## The diagnosis (why any of this)
@@ -96,6 +96,10 @@ architecture change — so the model-rendered path is as clean as it can be befo
 **What it deliberately does *not* fix:** 03 (ungrouped trust marks) and 05 (duplicate row, co-equal
 competitor) — those are the deterministic-layout class that only **Phase 2 (compositing)** cures.
 
+**Validated on a reroll** (`gut_relief_v1` 01/02/05, Batch API, flash): 01 and 02 pass the grader —
+the duplicate category-descriptor print is gone. 05 fails exactly on the deterministic class (a
+garbled rendered word "flated", a trust mark on the rival's column) — the residue Phase 2 removes.
+
 **Remaining under Phase 0:** none. (The 5 flagged legacy UGC specs are optional cleanup, surfaced by
 the validator; they are not blocking.)
 
@@ -148,7 +152,7 @@ the concept can breathe while the pouch stays recognizable. Applies to `scene` /
 
 ---
 
-## Phase 2 — Compositing — **NEXT (the keystone)**
+## Phase 2 — Compositing — **PROTOTYPE DONE (the keystone); wiring NEXT**
 
 **Goal:** stop asking the model to render the pouch label and the exact copy. Generate the
 **background/scene only**; paste the real pouch PNG (RGBA 3851×4814) and typeset the copy in code.
@@ -161,16 +165,34 @@ the concept can breathe while the pouch stays recognizable. Applies to `scene` /
 - **Unlocks expressive type** — the model can't reliably render expressive/experimental type; Pillow
   can (Impact/DIN Condensed, Didot/Bodoni, Georgia on macOS).
 
-**Tasks (to scope):**
-- A compositing step (Pillow): background from the engine → paste pouch (position/scale by a simple
-  layout spec) → typeset headline/subhead/CTA/proof in brand fonts → export 1080×1080.
-- A prompt mode that asks the model for a background with a reserved zone for the pouch/text (no
-  product, no copy rendered by the model).
-- A layout spec on the ad (where the pouch sits, the text zones) — small, declarative.
-- Font assets + a type system matched to the register (blend declares / tea observes).
-- Validation that the composited output still passes the outside-in read.
+**The prototype ([`composite.py`](../composite.py), self-contained spike — graduates into the
+engine as one deliberate step):**
+- **Background-plate prompt mode** — the scene/color world plus reserved clean zones, with a hard
+  "no product, no packaging, no text/letters/numbers" rule; flash renders the plate (drafts tier).
+- **Layout presets** (`LAYOUTS`) — the small declarative spec: text zone + pouch anchor/height +
+  CTA/proof/social slots (`pouch_right` · `poster_top` · `pouch_center`).
+- **Type system** (`FONTS`) — `TYPE_PERSONALITIES` mapped to real macOS fonts (DIN Condensed Bold /
+  Bodoni 72 / Georgia Italic / Didot / Impact; Helvetica for chips/CTA/captions).
+- **Deterministic layer** — real pouch paste with a soft blurred-alpha drop shadow; headline with
+  the per-word gold emphasis (NBSP-joined so the accent phrase never splits across a wrap); subhead;
+  outlined proof chips; five drawn-polygon stars + the `brand_facts` trust line; category cue fused
+  to the pouch lockup (relocates above the pouch when the CTA band would collide); solid/pill/text-link
+  CTA with a drawn arrow. Colors are luminance-adaptive (cream-on-dark / dark-on-light; brand gold
+  `#867353` on light, sand `#D2C299` on dark) with a soft scrim only when the text zone is mid-tone.
+- **Grader calibration** — the `legible` criterion judges the DESIGNED text layer; a real label's
+  fine print is not a defect (garbled/invented label text still fails `no_invented_text`).
 
-**Prototype first** on 2–3 gut concepts before wiring it into the main path.
+**Proven on the 3 gut concepts** (photographic scene · dark poster · editorial-graphic medium):
+3/3 pass the grader; the label is pixel-perfect by construction and every word is exactly the
+spec's. The same run's direct-path reroll put the contrast on record — 05 rendered "flated".
+
+**Remaining to wire into the main path:**
+- A `render_mode: "composite"` spec field: `prompt_builder` emits the background-plate prompt;
+  `gen.py` generates plates (incl. `--batch`), then composites — one pipeline, both paths.
+- Treatment parity: the engine's full `CTA_STYLES` / `SOCIAL_PROOF_VISUALS` catalogs re-expressed as
+  drawn treatments (the prototype implements button / pill / text_link and the star-row lockup).
+- Tea canister support (per-SKU refs + the Trifecta gradient asset) — the prototype is blend-only.
+- Validator rules for the layout spec + golden coverage once composite prompts join the contract.
 
 ---
 
@@ -191,8 +213,9 @@ actually won (not just internal judgement).
 
 ## Open items across phases
 
-- **Reroll** `gut_relief_v1` 01/02/05 to see Phase 0's effect (01/02 should be clean; 03/05 wait for
-  Phase 2). Costs a batch run (~$0.17).
-- **Author + generate an art-led demo batch** to validate Phase 1 empirically.
+- **Wire compositing into the main path** (the Phase 2 remaining-tasks list above) once the
+  prototype look is client-approved.
+- **Author + generate a direct-path art-led demo batch** to validate Phase 1's model-rendered
+  variant empirically (the composited variant is proven by the 03 graphic proto).
 - **Legacy UGC cleanup** (optional): the 5 specs the framing guard flags — move capture framing into
   `capture_mode` when each is next touched.

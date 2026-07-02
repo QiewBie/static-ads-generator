@@ -26,7 +26,7 @@ GRADER_MODEL = "gemini-2.5-flash"   # vision+text understanding model; configura
 # answer, not an abstract "is the hierarchy good" (that's vibes, not reproducible).
 RUBRIC = [
     # ── Render faults ────────────────────────────────────────────────────────
-    ("legible",          "All text is crisp and correctly spelled — no garbled, warped, doubled, or nonsense words."),
+    ("legible",          "All DESIGNED ad text (headline, subhead, chips, captions, CTA) is crisp and correctly spelled — no garbled, warped, doubled, or nonsense words. The product label's own fine print is naturally small and is NOT a legibility failure by itself (garbled or invented label text still fails under no_invented_text)."),
     ("product_present",  "The Alcami pouch/canister is clearly present and recognizable. Hero formats (scene/comparison/blocks/how_it_works): it should occupy roughly a third of the image height or more. Poster/UGC: simply present and legible is enough."),
     ("no_invented_text", "No invented brand names, fake company/legal lines, taglines, or garbled sub-labels anywhere (e.g. a made-up 'ACME CORP APS' line near the product)."),
     ("no_duplicate_claim","No trust mark or claim printed twice — e.g. '200,000+ customers' must not appear in two separate places."),

@@ -27,7 +27,7 @@ The structured registry is [`competitors.py`](../competitors.py) (render-capable
 | [claim-caffeine-free-blend.md](claim-caffeine-free-blend.md) | claim verification: Original is caffeine-free (brand-stated) |
 | [authoring-claude-md-and-skills.md](authoring-claude-md-and-skills.md) | meta: how this project's CLAUDE.md/skills should be written |
 | [competitor-creative-teardown.md](competitor-creative-teardown.md) | AG1/IM8/RYZE ad-level visual teardown (badges, proof placement, density, connectors) |
-| [prompt-architecture-redesign.md](prompt-architecture-redesign.md) | the engine redesign roadmap — P0 hardening + P1 `art_style` axis DONE, P2 compositing NEXT, P3 analytics LATER |
+| [prompt-architecture-redesign.md](prompt-architecture-redesign.md) | the engine redesign roadmap — P0 + P1 DONE (P0 validated on the gut reroll), P2 compositing prototype shipped (`composite.py`, 3/3 pass), P3 analytics LATER |
 
 ## Campaigns with no research file yet
 `energized_v1`, `tired_parents_v1`, `core_portfolio_v1` (blend) · `launch_v1`, `acquisition_v1`, `pioneer_v1` (tea) — strategy lives in the batch comments / `tea-product-brief.md`.
