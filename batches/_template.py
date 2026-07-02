@@ -13,10 +13,13 @@
 #   python3 gen.py batches/<file>.py --campaign NAME --batch       ← Batch API, 50% price, async
 #   python3 gen.py --policy                               ← formats/archetypes/audience
 #
-# THE TWO AUTHORITIES (don't restate their rules in specs):
-#   prompt_builder.py  — formats, design archetypes, audience policy, price anchors,
-#                        SKU color worlds, all hard rules, the validator.
-#   CLAUDE.md          — brand, product facts, voice, ICP.
+# AUTHORITIES (write within them, don't restate their rules in specs; each fact has ONE home):
+#   the engine         — prompt_builder.py (formats, archetypes, audience policy, SKU color
+#                        worlds, hard rules) + brand_facts.py (price anchors, customer count)
+#                        + pb_validate.py (claim guards).   Live matrix: gen.py --policy
+#   CLAUDE.md          — brand, voice, ICP, the always-true claim/creative rules.
+#   tea-product-brief.md — tea creative strategy.    competitors.py — rival registry.
+#   generate-ads skill + reference/ — how to generate + on-demand color/ingredient/asset detail.
 #
 # KEY FIELDS
 #   run_id        the campaign's output folder. None lets gen.py name it by position
@@ -31,6 +34,11 @@
 #   archetype     (optional, recommended) editorial · spec_card · annotated · color_block ·
 #                 badge · ugc_minimal · testimonial · social_proof · poster · screenshot ·
 #                 before_after   (see --policy)
+#   art_style     (optional, default photographic) the MEDIUM — the scroll-stopping variety axis:
+#                 photographic (default) · editorial_graphic (flat premium print) ·
+#                 illustrated (editorial / botanical) · risograph (limited-palette print).
+#                 Non-photographic styles drop the camera and let the concept lead; pairs with
+#                 any non-ugc format/archetype. (ugc is phone-photographic — art_style ignored.)
 #   hook          ONE complete sentence the ad is built from (outcome, not ingredient)
 #   cta_style     match the treatment to the register; vary it across a batch (4th divergence axis):
 #                 solid   button / button_right        loud, direct-response
@@ -40,9 +48,12 @@
 #                 distinct tab · sticker · arrow_down   edge bookmark · die-cut · chevron pointing
 #                                                       at the platform button shown below the ad
 #                 none    no in-image CTA               poster/screenshot/ugc; platform button only
+#   capture_mode  (ugc only, optional) pin the phone-shot framing: arms_length · pov_handheld ·
+#                 propped_phone · friend_candid · mirror. Unset → the engine rotates one by
+#                 filename; pin it whenever the person/moment prose implies a specific framing.
 #
 # COPY/LAYOUT-SPLIT (the clean path that stops "looks like a document"):
-#   For blocks, prefer `headline` + `items` + `proof` over the legacy `blocks` list.
+#   For blocks, prefer `headline` + `items` + `proof` over the free-form `blocks` list.
 #   items: list of {"label": "...", "note": "..."} — the engine tells the model to
 #   DESIGN them as objects, never as a bulleted list. Reference the hook with {hook}.
 #
@@ -70,7 +81,7 @@ CAMPAIGNS = {
                 "visual_action": "The pouch occupies the coffee maker's old spot — the choice already made.",
                 "text_in_image": "Two months. No coffee.",
                 "text_treatment": "condensed bold, top-left, cream",
-                "cta": "Shop Now",
+                "cta": "Make the swap",
                 "cta_style": "pill",
                 "price": False,
             },
@@ -92,7 +103,7 @@ CAMPAIGNS = {
                 ],
                 "proof": ["4.9 stars", "USDA Organic", "Caffeine-free"],
                 "has_cup": True,
-                "cta": "Shop Now",
+                "cta": "See what's inside",
                 "cta_style": "button",
                 "price": False,
             },
@@ -116,7 +127,7 @@ CAMPAIGNS = {
                     },
                 },
                 "visual": "warm amber-gold world; pyramid sachet vs. a plain flat tea bag.",
-                "cta": "Shop Now",
+                "cta": "See the difference",
                 "cta_style": "button",
                 "price": True,
                 "price_style": "pill",
@@ -133,6 +144,8 @@ CAMPAIGNS = {
                 "person": "A person early-30s, casual, no studio styling, face visible mid-moment",
                 "moment": "in the kitchen mid-morning, holding a latte mug, the opened pouch in use beside it",
                 "environment": "real apartment kitchen, natural window light",
+                "capture_mode": "friend_candid",           # optional — pins the shot; unset rotates one
+
                 "text_in_image": "No more 11am crash.",   # renders as a native Stories/TikTok caption — leave text_treatment empty
                 "creator_tag": "@alcamielements",          # optional: a subtle brand-mention sticker, like a creator tagging the brand
                 "cta": "Shop Now",
@@ -151,7 +164,7 @@ CAMPAIGNS = {
                 "headline": "The 3pm dip just stopped.",
                 "items": [{"label": "Verified customer", "note": "Afternoon Ritual, 3 months in"}],
                 "proof": ["4.9 stars", "Lion's Mane for focus"],
-                "cta": "Shop Now",
+                "cta": "Read the reviews",
                 "cta_style": "pill",
                 "price": False,
             },

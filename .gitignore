@@ -14,3 +14,13 @@ __pycache__/
 
 # Generated outputs — regenerable from specs; not source
 ad-workspace/
+
+# Large manual exports (regenerable from Meta Ads Manager); not source
+/*.csv
+
+# Raw research pulls — intermediate scratch; the distilled painpoints-*.md are the keepers
+research/_raw/
+
+# CLAUDE.md tiering trial — temp backup + lean preview (delete when finalized)
+CLAUDE.full.md
+CLAUDE.proposed.md

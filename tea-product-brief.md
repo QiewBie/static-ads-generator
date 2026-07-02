@@ -1,5 +1,4 @@
 # Alcami Ritual Tea Line — Product & Creative Brief
-**Version 1.0 | May 2026**
 
 > This document is the creative and strategic bible for the Ritual Tea Line. It complements `CLAUDE.md` (brand-level rules, including the Brand DNA section: voice and philosophy). It defines what the tea IS, how it differs from the blend, and how to advertise it.
 
@@ -228,7 +227,7 @@ The tea canisters are a completely different visual object from the latte pouche
 1. **"We made tea now!"** — pure announcement energy. They care that *Alcami* made it, not which mushroom is inside.
 2. **"Loved the blend? Try this."** — the cleanest cross-sell. Make it specific: "Loved your morning blend? Now there's a tea for 3pm." Extends the ritual — NEVER gap-fills (no "what your ritual is missing").
 3. **Two-product display** — blend + tea in one frame. Recognition, not persuasion: "same family, you already own one." (Use `extra_refs` to bring the blend pouch into a tea scene.)
-4. **Insider / early access** — reward loyalty: "Our customers get it first." Keep date-free in the image (no "Pre-Order", no ship dates) even though the site is currently pre-order.
+4. **Insider / early access** — reward loyalty: "Our customers get it first." Keep date-free in the image (no "Pre-Order", no ship dates) — the tea writes as live in creative regardless of the site's rollout state.
 
 **Format fit:** lead with `scene` (two-product / announcement) and emotional `editorial`/`color_block` design. `blocks`/`how_it_works` are the FOLLOW-UP for people who want detail. NEVER `comparison` (launch register is news, not an argument — don't pit our own new product in a vs. layout for people who already buy from us), and never `ugc`, `testimonial`, or `social_proof` — warm buyers don't need authenticity signals or proof. (The validator enforces this; see `python3 gen.py --policy`.)
 
@@ -283,7 +282,7 @@ Tea ads are **quieter and more precise** than blend ads. The blend declares. The
 | Relief — the moment exhaustion ends | Attunement — the day has a shape |
 | Loud, declarative | Quiet, precise, inevitable |
 
-**The quiet register is the default, not a cage — calibrate to the audience.** For warm/retarget and brand-voice moments, observe (quiet, editorial). But **cold acquisition** rewards clarity and boldness — a stranger has to *get it* in under 2s, and the blend's data shows loud comparison/poster devices win cold traffic. So for cold tea acquisition you MAY borrow the louder toolkit (`comparison`, `poster`, a bold borrowed-frame hook, a `stamp` for a true state) and test it against the quiet editorial cut. The factual claim-guards still apply; only the *register* loosens.
+**The quiet register is the default, not a cage — calibrate to the audience.** For warm/retarget and brand-voice moments, observe (quiet, editorial). But **cold acquisition** rewards clarity and boldness — a stranger has to *get it* in under 2s, and the blend's data shows loud comparison/poster devices win cold traffic. So for cold tea acquisition you MAY borrow the louder toolkit (`comparison`, `poster`, a bold borrowed-frame hook, a `corner_stamp` for a true state) and test it against the quiet editorial cut. The factual claim-guards still apply; only the *register* loosens.
 
 ### What NOT to do in tea ads
 
@@ -343,7 +342,7 @@ Tea copy should be more cinematic, more atmospheric, and less formulation-heavy 
 | "Reishi for sleep." | "A descent ritual. Not sedation — permission." |
 | "Cordyceps for energy." | "The morning that arrives without asking anything from your adrenal gland." |
 
-**Proven homepage-level lines (use as headline and concept fuel):**
+**Proven homepage-level lines (register & angle reference — study the voice and what each angle does, then write fresh for the batch; never lift verbatim, per the generate-ads skill's "no copy bank" rule):**
 
 - "Built for the way a body moves through a day."
 - "Three rituals. One nervous system."
@@ -373,6 +372,8 @@ Tea visual world is lighter and more atmospheric than the core blend. The blend 
 ---
 
 ## Key Hooks & Headlines by SKU
+
+These are **register and angle reference, not a copy bank** — they show the tea voice and the kind of angle each SKU supports. Study *why* each works, then write a fresh line for the batch in front of you; per the generate-ads skill, a draft that matches one you remember is the signal you stopped thinking.
 
 ### Morning Ritual — Inertia → Momentum
 - "The morning that doesn't crash at 11."

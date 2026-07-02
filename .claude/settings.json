@@ -1,0 +1,16 @@
+{
+  "hooks": {
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "cd /Users/danilshults/alcami-workspace && make verify 1>&2 || exit 2",
+            "timeout": 60,
+            "statusMessage": "Verifying pipeline invariants (make verify)"
+          }
+        ]
+      }
+    ]
+  }
+}
